@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EUTOPIA Lisboa Microclimate Risk</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    body { margin: 0; padding: 0; font-family: -apple-system, sans-serif; }
+    #map { height: 60vh; width: 100vw; }
+    #controls { padding: 15px; background: #f8f9fa; height: 40vh; box-sizing: border-box; overflow-y: auto; }
+    .row { display: flex; gap: 10px; margin-bottom: 10px; }
+    .btn { background: #007bff; color: white; border: none; padding: 10px 15px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+    label { font-weight: bold; font-size: 0.85rem; display: block; margin-bottom: 4px; }
+    select, input { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc; }
+  </style>
+</head>
+<body>
+
+  <div id="map"></div>
+
+  <div id="controls">
+    <div class="row">
+      <button id="playBtn" class="btn" onclick="togglePlay()">▶ Play 24h Loop</button>
+      <div style="flex-grow: 1;">
+        <label for="date">Date</label>
+        <select id="date" onchange="loadDailyData()">
+          <option value="2026-10-26">Oct 26, 2026</option>
+          <option value="2026-10-27">Oct 27, 2026</option>
+          <option value="2026-10-28">Oct 28, 2026</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="margin-bottom: 10px;">
+      <label for="hour">Hour of Day: <span id="hourVal">15:00</span></label>
+      <input type="range" id="hour" min="0" max="23" value="15" oninput="updateFrame()">
+    </div>
+
+    <div>
+      <label for="persona">User Health Profile</label>
+      <select id="persona" onchange="renderFrame()">
+        <option value="elderly">Senior / Cardiovascular (Heat Sensitive)</option>
+        <option value="asthma">Asthma / Respiratory (PM2.5 Sensitive)</option>
+        <option value="general">General Public (Balanced)</option>
+      </select>
+    </div>
+  </div>
+
+  <script>
+    const map = L.map('map').setView([38.73, -9.15], 12);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map);
+
+    let currentDailyData = null;
+    let canvasLayer = null;
+    let isPlaying = false;
+    let playInterval = null;
+
+    const weights = {
+      elderly: { heat: 0.6, pm25: 0.2, noise: 0.2 },
+      asthma:  { heat: 0.2, pm25: 0.7, noise: 0.1 },
+      general: { heat: 0.33, pm25: 0.33, noise: 0.34 }
+    };
+
+    async function loadDailyData() {
+      const date = document.getElementById('date').value;
+      // Fetch 1 single JSON file for the selected day
+      currentDailyData = await fetch(`./www/data/${date}.json`).then(r => r.json());
+      renderFrame();
+    }
+
+    function updateFrame() {
+      document.getElementById('hourVal').innerText = document.getElementById('hour').value + ':00';
+      renderFrame();
+    }
+
+    function renderFrame() {
+      if (!currentDailyData) return;
+
+      const hour = document.getElementById('hour').value;
+      const persona = document.getElementById('persona').value;
+      const w = weights[persona];
+      const hourData = currentDailyData.hours[hour];
+
+      // Client-side weighted risk score calculation
+      const compositeValues = hourData.heat.map((v, i) => {
+        return (v * w.heat) + (hourData.pm25[i] * w.pm25) + (hourData.noise[i] * w.noise);
+      });
+
+      renderCanvasOverlay(currentDailyData.bbox, currentDailyData.rows, currentDailyData.cols, compositeValues);
+    }
+
+    function renderCanvasOverlay(bbox, rows, cols, values) {
+      if (canvasLayer) map.removeLayer(canvasLayer);
+
+      const bounds = [[bbox[1], bbox[0]], [bbox[3], bbox[2]]];
+      const canvas = document.createElement('canvas');
+      canvas.width = cols; canvas.height = rows;
+      const ctx = canvas.getContext('2d');
+      const imgData = ctx.createImageData(cols, rows);
+
+      for (let i = 0; i < values.length; i++) {
+        const val = values[i];
+        const idx = i * 4;
+        imgData.data[idx]     = 255;                  // Red
+        imgData.data[idx + 1] = Math.round(255 * (1 - val)); // Green
+        imgData.data[idx + 2] = 0;                    // Blue
+        imgData.data[idx + 3] = val > 0.1 ? 160 : 0;  // Opacity
+      }
+
+      ctx.putImageData(imgData, 0, 0);
+      canvasLayer = L.imageOverlay(canvas.toDataURL(), bounds, { opacity: 0.75 }).addTo(map);
+    }
+
+    function togglePlay() {
+      const btn = document.getElementById('playBtn');
+      const slider = document.getElementById('hour');
+
+      if (isPlaying) {
+        clearInterval(playInterval);
+        isPlaying = false;
+        btn.innerText = "▶ Play 24h Loop";
+      } else {
+        isPlaying = true;
+        btn.innerText = "⏸ Pause";
+        playInterval = setInterval(() => {
+          let h = parseInt(slider.value) + 1;
+          if (h > 23) h = 0;
+          slider.value = h;
+          updateFrame();
+        }, 300); // Advances 1 hour every 300ms
+      }
+    }
+
+    // Initial load
+    loadDailyData();
+  </script>
+</body>
+</html>
