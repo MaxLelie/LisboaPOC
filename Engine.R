@@ -1,130 +1,109 @@
 library(terra)
-library(mgcv)
 library(jsonlite)
 
 # ==============================================================================
-# 1. SETUP BASE SPATIAL GRID FOR LISBON
+# 1. BASE GRID SETUP FOR LISBON
 # ==============================================================================
-cat("Setting up spatial grid for Lisbon...\n")
+lisbon_ext <- ext(-9.24, -9.09, 38.69, 38.80)
+base_grid  <- rast(lisbon_ext, res = 0.0025, crs = "EPSG:4326")
+coords     <- as.data.frame(crds(base_grid))
+names(coords) <- c("lon", "lat")
 
-# Extent roughly covering Central Lisbon to Monsanto & Tagus riverfront
-lisbon_extent <- ext(-9.24, -9.09, 38.69, 38.80)
-# ~150 x 150 cell resolution for quick rendering
-base_grid <- rast(lisbon_extent, res = 0.0025, crs = "EPSG:4326")
+# Key locations for spatial effects
+monsanto_center <- c(-9.185, 38.735) # Green space / cooling
+baixa_center    <- c(-9.138, 38.712) # Urban Heat Island (UHI) high density
+airport_center  <- c(-9.135, 38.775) # Humberto Delgado Airport
+city_center     <- c(-9.140, 38.725) # City center noise hub
+event_center    <- c(-9.120, 38.750) # Evening concert event (e.g., Parque das Nações)
 
-grid_coords <- as.data.frame(crds(base_grid))
-names(grid_coords) <- c("lon", "lat")
+dist_deg <- function(c1, c2) sqrt((coords$lon - c1[1])^2 + (coords$lat - c1[2])^2)
 
-# Key spatial landmarks for realistic GAM patterns
-grid_coords$dist_river <- abs(grid_coords$lat - 38.69)
-grid_coords$is_monsanto <- ifelse(grid_coords$lon > -9.21 & grid_coords$lon < -9.17 & 
-                                    grid_coords$lat > 38.72 & grid_coords$lat < 38.75, 1, 0)
-grid_coords$is_baixa    <- ifelse(grid_coords$lon > -9.15 & grid_coords$lon < -9.12 & 
-                                    grid_coords$lat > 38.70 & grid_coords$lat < 38.73, 1, 0)
-
-# ==============================================================================
-# 2. FIT SPATIAL GAM MODELS FOR HAZARDS
-# ==============================================================================
-cat("Fitting Spatial GAMs for Heat, PM2.5, and Noise...\n")
-set.seed(2026)
-
-# A. Heat / UHI GAM Model
-sensors_heat <- data.frame(
-  lon = runif(80, -9.24, -9.09),
-  lat = runif(80, 38.69, 38.80)
-)
-sensors_heat$is_monsanto <- ifelse(sensors_heat$lon > -9.21 & sensors_heat$lon < -9.17 & 
-                                     sensors_heat$lat > 38.72 & sensors_heat$lat < 38.75, 1, 0)
-sensors_heat$is_baixa    <- ifelse(sensors_heat$lon > -9.15 & sensors_heat$lon < -9.12 & 
-                                     sensors_heat$lat > 38.70 & sensors_heat$lat < 38.73, 1, 0)
-sensors_heat$uhi_val <- 3.5 * sensors_heat$is_baixa - 4.0 * sensors_heat$is_monsanto + rnorm(80, sd=0.4)
-
-gam_heat <- gam(uhi_val ~ s(lon, lat, k = 25) + is_monsanto + is_baixa, data = sensors_heat)
-
-# B. PM2.5 Air Pollution GAM Model
-sensors_pm25 <- data.frame(
-  lon = runif(60, -9.24, -9.09),
-  lat = runif(60, 38.69, 38.80)
-)
-# Pollution concentrated near major transport corridors (Avenida da Liberdade / Baixa)
-sensors_pm25$is_baixa <- ifelse(sensors_pm25$lon > -9.15 & sensors_pm25$lon < -9.12 & 
-                                  sensors_pm25$lat > 38.70 & sensors_pm25$lat < 38.73, 1, 0)
-sensors_pm25$pm_val <- 18 + 15 * sensors_pm25$is_baixa + rnorm(60, sd=2)
-
-gam_pm25 <- gam(pm_val ~ s(lon, lat, k = 20) + is_baixa, data = sensors_pm25)
-
-# C. Ambient Noise GAM Model
-sensors_noise <- data.frame(
-  lon = runif(60, -9.24, -9.09),
-  lat = runif(60, 38.69, 38.80)
-)
-sensors_noise$dist_river <- abs(sensors_noise$lat - 38.69)
-sensors_noise$noise_val  <- 45 + 20 * (1 - pmin(sensors_noise$dist_river * 10, 1)) + rnorm(60, sd=3)
-
-gam_noise <- gam(noise_val ~ s(lon, lat, k = 20), data = sensors_noise)
-
-# Predict base spatial anomalies across grid
-grid_coords$base_heat  <- predict(gam_heat, newdata = grid_coords)
-grid_coords$base_pm25  <- predict(gam_pm25, newdata = grid_coords)
-grid_coords$base_noise <- predict(gam_noise, newdata = grid_coords)
+coords$d_monsanto <- dist_deg(monsanto_center, NULL)
+coords$d_baixa    <- dist_deg(baixa_center, NULL)
+coords$d_airport  <- dist_deg(airport_center, NULL)
+coords$d_city     <- dist_deg(city_center, NULL)
+coords$d_event    <- dist_deg(event_center, NULL)
 
 # ==============================================================================
-# 3. HELPER FUNCTION TO EXPORT DAILY MASTER JSON
+# 2. SYNTHETIC LAYER BUILDERS
 # ==============================================================================
-export_daily_master_json <- function(grid_df, base_raster, date_str, output_path) {
+
+# A. TEMPERATURE LAYER
+# Baseline cosine daily cycle between T_min and T_max + UHI/park anomalies
+get_temperature <- function(hour, t_min = 16, t_max = 28) {
+  # Diurnal cosine wave (minimum at 06:00, peak at 15:00)
+  diurnal_temp <- t_min + (t_max - t_min) * 0.5 * (1 - cos((hour - 6) * pi / 12))
   
-  # Normalize vector to 0.0 - 1.0 scale
-  norm <- function(v) {
-    v_clean <- ifelse(is.na(v), min(v, na.rm=T), v)
-    m1 <- min(v_clean, na.rm=T)
-    m2 <- max(v_clean, na.rm=T)
-    if (m2 == m1) return(rep(0, length(v)))
-    return((v_clean - m1) / (m2 - m1))
-  }
+  # UHI spatial anomalies (in °C offset)
+  uhi_heat <- 3.5 * exp(-((coords$d_baixa / 0.02)^2))      # Red increase (high density)
+  uhi_cool <- -2.5 * exp(-((coords$d_monsanto / 0.025)^2))  # Green decrease (park)
   
+  # Per-cell temperature
+  return(diurnal_temp + uhi_heat + uhi_cool)
+}
+
+# B. NOISE LAYER
+# Concentric circles around hubs + temporary evening event (18:00–23:00)
+get_noise <- function(hour) {
+  # Base background ambient noise (dB)
+  base_noise <- 45
+  
+  # Concentric attenuation noise (decaying with distance)
+  noise_airport <- 35 * exp(-coords$d_airport / 0.03)
+  noise_city    <- 25 * exp(-coords$d_city / 0.02)
+  
+  # Temporary event (e.g., concert active between 18:00 and 23:00)
+  event_active  <- ifelse(hour >= 18 & hour <= 23, 1, 0)
+  noise_event   <- 40 * exp(-coords$d_event / 0.015) * event_active
+  
+  return(pmin(85, base_noise + noise_airport + noise_city + noise_event))
+}
+
+# C. POLLUTION (PM2.5) LAYER
+# Low spatial frequency (smooth wide wave field) + small hourly variations
+set.seed(42)
+coords$pollution_macro <- 15 + 10 * sin(coords$lon * 80) * cos(coords$lat * 80)
+
+get_pollution <- function(hour) {
+  # Rush hour multipliers at 08:00 and 18:00
+  rush_factor <- 1.0 + 0.4 * exp(-((hour - 8)^2) / 4) + 0.5 * exp(-((hour - 18)^2) / 4)
+  
+  # Small spatial jitter per hour
+  micro_variation <- 2 * sin(coords$lon * 300 + hour)
+  
+  return(pmax(5, coords$pollution_macro * rush_factor + micro_variation))
+}
+
+# ==============================================================================
+# 3. EXPORT DAILY MASTER JSON
+# ==============================================================================
+export_day_json <- function(date_str, output_path) {
   hours_list <- list()
   
   for (h in 0:23) {
-    # Diurnal temperature cycle peaking at 15:00
-    heat_factor  <- sin((h - 8) * pi / 12)
-    # Traffic surge for PM2.5 and Noise at 08:00 and 18:00
-    rush_factor  <- ifelse(h %in% c(7,8,9,17,18,19), 1.4, 0.7)
-    night_factor <- ifelse(h >= 22 | h <= 5, 0.3, 1.0)
-    
-    # Calculate live values per hour
-    h_heat  <- pmax(0, grid_df$base_heat * heat_factor)
-    h_pm25  <- grid_df$base_pm25 * rush_factor
-    h_noise <- grid_df$base_noise * rush_factor * night_factor
-    
     hours_list[[as.character(h)]] <- list(
-      heat  = round(as.vector(norm(h_heat)), 3),
-      pm25  = round(as.vector(norm(h_pm25)), 3),
-      noise = round(as.vector(norm(h_noise)), 3)
+      temp  = round(get_temperature(h), 1), # values in °C
+      noise = round(get_noise(h), 1),        # values in dB
+      pm25  = round(get_pollution(h), 1)     # values in µg/m³
     )
   }
   
-  master_structure <- list(
+  payload <- list(
     date  = date_str,
-    bbox  = c(ext(base_raster)[1], ext(base_raster)[3], ext(base_raster)[2], ext(base_raster)[4]),
-    rows  = nrow(base_raster),
-    cols  = ncol(base_raster),
+    bbox  = c(ext(base_grid)[1], ext(base_grid)[3], ext(base_grid)[2], ext(base_grid)[4]),
+    rows  = nrow(base_grid),
+    cols  = ncol(base_grid),
     hours = hours_list
   )
   
-  dir.create(dirname(output_path), recursive = TRUE, showWarnings = FALSE)
-  write_json(master_structure, output_path, auto_unbox = TRUE)
-  cat(sprintf("✓ Successfully generated: %s\n", output_path))
+  dir.create(dirname(output_path), recursive = FALSE, showWarnings = FALSE)
+  write_json(payload, output_path, auto_unbox = TRUE)
+  cat(sprintf("✓ Exported: %s\n", output_path))
 }
 
-# ==============================================================================
-# 4. EXECUTE GENERATION LOOP ACROSS DATES
-# ==============================================================================
+# Generate 5 test dates
 dates <- c("2026-10-26", "2026-10-27", "2026-10-28", "2026-10-29", "2026-10-30")
-
-cat("\nGenerating daily files in www/data/...\n")
 for (d in dates) {
-  out_file <- sprintf("www/data/%s.json", d)
-  export_daily_master_json(grid_coords, base_grid, d, out_file)
+  export_day_json(d, sprintf("www/data/%s.json", d))
 }
 
-cat("\nAll daily master JSON files generated successfully!\n")

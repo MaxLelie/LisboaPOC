@@ -7,72 +7,248 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
-    body { margin: 0; padding: 0; font-family: -apple-system, sans-serif; }
-    #map { height: 60vh; width: 100vw; }
-    #controls { padding: 15px; background: #f8f9fa; height: 40vh; box-sizing: border-box; overflow-y: auto; }
-    .row { display: flex; gap: 10px; margin-bottom: 10px; }
-    .btn { background: #007bff; color: white; border: none; padding: 10px 15px; border-radius: 6px; font-weight: bold; cursor: pointer; }
-    label { font-weight: bold; font-size: 0.85rem; display: block; margin-bottom: 4px; }
-    select, input { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc; }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f4f6f9; }
+    
+    /* Top Map Mode Switcher */
+    #top-bar {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 6px 12px;
+      border-radius: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+      display: flex;
+      gap: 6px;
+    }
+    .mode-btn {
+      border: none;
+      background: #e9ecef;
+      color: #495057;
+      padding: 6px 12px;
+      border-radius: 14px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .mode-btn.active {
+      background: #007bff;
+      color: white;
+    }
+
+    #map { height: 55vh; width: 100vw; }
+    
+    #controls {
+      padding: 15px;
+      background: white;
+      height: 45vh;
+      overflow-y: auto;
+      border-top-left-radius: 16px;
+      border-top-right-radius: 16px;
+      box-shadow: 0 -4px 15px rgba(0,0,0,0.08);
+    }
+    
+    .row { display: flex; gap: 10px; margin-bottom: 12px; align-items: center; }
+    .btn { background: #007bff; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    .btn-secondary { background: #6c757d; }
+    
+    label { font-weight: bold; font-size: 0.85rem; color: #333; display: block; margin-bottom: 4px; }
+    select, input[type="number"] { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc; font-size: 0.9rem; }
+    
+    /* Settings Drawer */
+    #settings-panel {
+      display: none;
+      background: #f8f9fa;
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 10px;
+      border: 1px solid #dee2e6;
+    }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+    
+    /* Color Legend */
+    #legend {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 10px 0;
+      padding: 8px 12px;
+      background: #f8f9fa;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: bold;
+    }
+    .legend-box { width: 14px; height: 14px; border-radius: 3px; display: inline-block; vertical-align: middle; margin-right: 4px; }
   </style>
 </head>
 <body>
+
+  <!-- Top Map Layer Switcher -->
+  <div id="top-bar">
+    <button class="mode-btn active" onclick="setMapLayer('risk')">Risk Index</button>
+    <button class="mode-btn" onclick="setMapLayer('temp')">Temp (°C)</button>
+    <button class="mode-btn" onclick="setMapLayer('noise')">Noise (dB)</button>
+    <button class="mode-btn" onclick="setMapLayer('pm25')">PM2.5</button>
+  </div>
 
   <div id="map"></div>
 
   <div id="controls">
     <div class="row">
-      <button id="playBtn" class="btn" onclick="togglePlay()">▶ Play 24h Loop</button>
+      <button id="playBtn" class="btn" onclick="togglePlay()">▶ Play 24h</button>
       <div style="flex-grow: 1;">
         <label for="date">Date</label>
         <select id="date" onchange="loadDailyData()">
           <option value="2026-10-26">Oct 26, 2026</option>
           <option value="2026-10-27">Oct 27, 2026</option>
           <option value="2026-10-28">Oct 28, 2026</option>
+          <option value="2026-10-29">Oct 29, 2026</option>
+          <option value="2026-10-30">Oct 30, 2026</option>
         </select>
       </div>
+      <button class="btn btn-secondary" onclick="toggleSettings()">⚙ Limits</button>
     </div>
 
-    <div style="margin-bottom: 10px;">
-      <label for="hour">Hour of Day: <span id="hourVal">15:00</span></label>
-      <input type="range" id="hour" min="0" max="23" value="15" oninput="updateFrame()">
+    <div style="margin-bottom: 12px;">
+      <label for="hour">Hour of Day: <span id="hourVal" style="color: #007bff;">15:00</span></label>
+      <input type="range" id="hour" min="0" max="23" value="15" style="width:100%;" oninput="updateFrame()">
+    </div>
+
+    <!-- Legend -->
+    <div id="legend">
+      <span><span class="legend-box" style="background:#2ecc71;"></span> Safe</span>
+      <span><span class="legend-box" style="background:#f39c12;"></span> Moderate</span>
+      <span><span class="legend-box" style="background:#e74c3c;"></span> High Risk / Avoid</span>
     </div>
 
     <div>
       <label for="persona">User Health Profile</label>
       <select id="persona" onchange="renderFrame()">
-        <option value="elderly">Senior / Cardiovascular (Heat Sensitive)</option>
-        <option value="asthma">Asthma / Respiratory (PM2.5 Sensitive)</option>
-        <option value="general">General Public (Balanced)</option>
+        <option value="elderly">Senior / Cardiovascular (Heat Weight 60%)</option>
+        <option value="asthma">Asthma / Respiratory (PM2.5 Weight 70%)</option>
+        <option value="general">General Public (Equal Weighting)</option>
       </select>
+    </div>
+
+    <!-- Collapsible Settings Panel for Thresholds -->
+    <div id="settings-panel">
+      <label style="margin-bottom: 8px; color: #007bff;">Hazard Risk Thresholds</label>
+      
+      <div class="grid-2">
+        <div>
+          <label for="t_safe">Temp Safe (°C)</label>
+          <input type="number" id="t_safe" value="22" onchange="updateSettings()">
+        </div>
+        <div>
+          <label for="t_danger">Temp Danger (°C)</label>
+          <input type="number" id="t_danger" value="28" onchange="updateSettings()">
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <label for="n_safe">Noise Safe (dB)</label>
+          <input type="number" id="n_safe" value="55" onchange="updateSettings()">
+        </div>
+        <div>
+          <label for="n_danger">Noise Danger (dB)</label>
+          <input type="number" id="n_danger" value="70" onchange="updateSettings()">
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <label for="p_safe">PM2.5 Safe (µg/m³)</label>
+          <input type="number" id="p_safe" value="15" onchange="updateSettings()">
+        </div>
+        <div>
+          <label for="p_danger">PM2.5 Danger (µg/m³)</label>
+          <input type="number" id="p_danger" value="35" onchange="updateSettings()">
+        </div>
+      </div>
     </div>
   </div>
 
   <script>
+    // Initialize Leaflet Map with CartoDB Positron base layer (No watermark)
     const map = L.map('map').setView([38.73, -9.15], 12);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; OpenStreetMap &copy; CARTO',
+      subdomains: 'abcd',
+      maxZoom: 19
+    }).addTo(map);
 
     let currentDailyData = null;
     let canvasLayer = null;
     let isPlaying = false;
     let playInterval = null;
+    let activeMode = 'risk'; // 'risk', 'temp', 'noise', 'pm25'
 
-    const weights = {
-      elderly: { heat: 0.6, pm25: 0.2, noise: 0.2 },
-      asthma:  { heat: 0.2, pm25: 0.7, noise: 0.1 },
-      general: { heat: 0.33, pm25: 0.33, noise: 0.34 }
+    // Threshold state
+    let thresholds = {
+      temp: { safe: 22, danger: 28 },
+      noise: { safe: 55, danger: 70 },
+      pm25: { safe: 15, danger: 35 }
     };
+
+    // Persona weights
+    const weights = {
+      elderly: { temp: 0.6, pm25: 0.2, noise: 0.2 },
+      asthma:  { temp: 0.2, pm25: 0.7, noise: 0.1 },
+      general: { temp: 0.33, pm25: 0.33, noise: 0.34 }
+    };
+
+
 
     async function loadDailyData() {
       const date = document.getElementById('date').value;
-      // Fetch 1 single JSON file for the selected day
-      currentDailyData = await fetch(`./www/data/${date}.json`).then(r => r.json());
+      try {
+        // UPDATED: Added www/ to match the folder structure
+      const res = await fetch(`./www/data/${date}.json`);
+      currentDailyData = await res.json();
+      renderFrame();
+      } catch (e) {
+      console.error("Could not load daily JSON data file:", e);
+      } 
+    }
+
+    function setMapLayer(mode) {
+      activeMode = mode;
+      document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      renderFrame();
+    }
+
+    function toggleSettings() {
+      const panel = document.getElementById('settings-panel');
+      panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function updateSettings() {
+      thresholds.temp.safe   = parseFloat(document.getElementById('t_safe').value);
+      thresholds.temp.danger = parseFloat(document.getElementById('t_danger').value);
+      thresholds.noise.safe   = parseFloat(document.getElementById('n_safe').value);
+      thresholds.noise.danger = parseFloat(document.getElementById('n_danger').value);
+      thresholds.pm25.safe   = parseFloat(document.getElementById('p_safe').value);
+      thresholds.pm25.danger = parseFloat(document.getElementById('p_danger').value);
       renderFrame();
     }
 
     function updateFrame() {
-      document.getElementById('hourVal').innerText = document.getElementById('hour').value + ':00';
+      const hour = document.getElementById('hour').value;
+      document.getElementById('hourVal').innerText = (hour < 10 ? '0' : '') + hour + ':00';
       renderFrame();
+    }
+
+    // Helper: Normalize value between 0.0 (Safe) and 1.0 (Danger)
+    function calcRisk(val, safe, danger) {
+      if (val <= safe) return 0.0;
+      if (val >= danger) return 1.0;
+      return (val - safe) / (danger - safe);
     }
 
     function renderFrame() {
@@ -82,31 +258,59 @@
       const persona = document.getElementById('persona').value;
       const w = weights[persona];
       const hourData = currentDailyData.hours[hour];
+      
+      const N = hourData.temp.length;
+      const displayValues = new Float32Array(N);
 
-      // Client-side weighted risk score calculation
-      const compositeValues = hourData.heat.map((v, i) => {
-        return (v * w.heat) + (hourData.pm25[i] * w.pm25) + (hourData.noise[i] * w.noise);
-      });
+      for (let i = 0; i < N; i++) {
+        const rTemp  = calcRisk(hourData.temp[i], thresholds.temp.safe, thresholds.temp.danger);
+        const rNoise = calcRisk(hourData.noise[i], thresholds.noise.safe, thresholds.noise.danger);
+        const rPM25  = calcRisk(hourData.pm25[i], thresholds.pm25.safe, thresholds.pm25.danger);
 
-      renderCanvasOverlay(currentDailyData.bbox, currentDailyData.rows, currentDailyData.cols, compositeValues);
+        if (activeMode === 'risk') {
+          displayValues[i] = (rTemp * w.temp) + (rPM25 * w.pm25) + (rNoise * w.noise);
+        } else if (activeMode === 'temp') {
+          displayValues[i] = rTemp;
+        } else if (activeMode === 'noise') {
+          displayValues[i] = rNoise;
+        } else if (activeMode === 'pm25') {
+          displayValues[i] = rPM25;
+        }
+      }
+
+      renderCanvasOverlay(currentDailyData.bbox, currentDailyData.rows, currentDailyData.cols, displayValues);
     }
 
-    function renderCanvasOverlay(bbox, rows, cols, values) {
+    function renderCanvasOverlay(bbox, rows, cols, riskArray) {
       if (canvasLayer) map.removeLayer(canvasLayer);
 
       const bounds = [[bbox[1], bbox[0]], [bbox[3], bbox[2]]];
       const canvas = document.createElement('canvas');
-      canvas.width = cols; canvas.height = rows;
+      canvas.width = cols; 
+      canvas.height = rows;
       const ctx = canvas.getContext('2d');
       const imgData = ctx.createImageData(cols, rows);
 
-      for (let i = 0; i < values.length; i++) {
-        const val = values[i];
+      for (let i = 0; i < riskArray.length; i++) {
+        const score = riskArray[i]; // 0.0 to 1.0
         const idx = i * 4;
-        imgData.data[idx]     = 255;                  // Red
-        imgData.data[idx + 1] = Math.round(255 * (1 - val)); // Green
-        imgData.data[idx + 2] = 0;                    // Blue
-        imgData.data[idx + 3] = val > 0.1 ? 160 : 0;  // Opacity
+
+        // Color Interpolation: Green (0.0) -> Yellow/Orange (0.5) -> Red (1.0)
+        let r = 0, g = 0, b = 0;
+        if (score < 0.5) {
+          // Green to Yellow
+          r = Math.round(255 * (score * 2));
+          g = 220;
+        } else {
+          // Yellow to Red
+          r = 235;
+          g = Math.round(220 * (1 - (score - 0.5) * 2));
+        }
+
+        imgData.data[idx]     = r;
+        imgData.data[idx + 1] = g;
+        imgData.data[idx + 2] = b;
+        imgData.data[idx + 3] = score > 0.05 ? 150 : 0; // Opacity
       }
 
       ctx.putImageData(imgData, 0, 0);
@@ -120,7 +324,7 @@
       if (isPlaying) {
         clearInterval(playInterval);
         isPlaying = false;
-        btn.innerText = "▶ Play 24h Loop";
+        btn.innerText = "▶ Play 24h";
       } else {
         isPlaying = true;
         btn.innerText = "⏸ Pause";
@@ -129,11 +333,11 @@
           if (h > 23) h = 0;
           slider.value = h;
           updateFrame();
-        }, 300); // Advances 1 hour every 300ms
+        }, 300);
       }
     }
 
-    // Initial load
+    // Initial execution
     loadDailyData();
   </script>
 </body>
