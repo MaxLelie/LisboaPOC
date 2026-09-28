@@ -85,8 +85,9 @@ select,input[type=number]{width:100%;padding:7px 10px;border-radius:6px;border:1
 
 <script>
 const DATA = './www/data/';
+
 const map = L.map('map').setView([38.7369,-9.1426],12);
-L.tileLayer('https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+L.tileLayer(`https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png?key=cb1_408g_1_95cc032f14a947b30ef77c0a`,
   {attribution:'&copy; OpenStreetMap contributors &copy; CARTO',maxZoom:20}).addTo(map);
 const eventGroup = L.layerGroup().addTo(map);
 let overlay=null, day=null, mode='risk', sel=null, selMarker=null, playing=null, fitted=false;
