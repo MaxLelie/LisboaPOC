@@ -85,12 +85,13 @@ select,input[type=number]{width:100%;padding:7px 10px;border-radius:6px;border:1
 
 <script>
 const DATA = './www/data/';
-
 const map = L.map('map').setView([38.7369,-9.1426],12);
-L.tileLayer(`https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png?key=cb1_408g_1_95cc032f14a947b30ef77c0a`,
+const CARTO_KEY = 'cb1_408g_1_95cc032f14a947b30ef77c0a';
+L.tileLayer(`https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png?key=${CARTO_KEY}`,
   {attribution:'&copy; OpenStreetMap contributors &copy; CARTO',maxZoom:20}).addTo(map);
 const eventGroup = L.layerGroup().addTo(map);
 let overlay=null, day=null, mode='risk', sel=null, selMarker=null, playing=null, fitted=false;
+
 
 const TH = {temp:{safe:22,danger:30},noise:{safe:55,danger:75},pm25:{safe:12,danger:35},uv:{safe:3,danger:8}};
 const W = {elderly:{temp:.5,pm25:.15,noise:.15,uv:.2},asthma:{temp:.2,pm25:.6,noise:.1,uv:.1},general:{temp:.25,pm25:.25,noise:.25,uv:.25}};
