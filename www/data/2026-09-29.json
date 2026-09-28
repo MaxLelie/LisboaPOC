@@ -1,0 +1,1023 @@
+{
+  "date": "2026-09-29",
+  "total_hours": 24,
+  "hours": {
+    "01:00": {
+      "timestamp": "2026-09-29T01:00:00Z",
+      "meteo": {
+        "temp": 20.4,
+        "solar_rad": 0,
+        "uv": 0,
+        "pm25": 18.7,
+        "no2": 17.5
+      },
+      "multipliers": {
+        "traffic": 0.1,
+        "industry": 0.1,
+        "airport": 0.25,
+        "uhi": 0.55
+      },
+      "active_events": [],
+      "spatial_summary": {
+        "mean_noise": 43.7306,
+        "mean_pollution": 21.2305,
+        "mean_heat": 19.9056,
+        "mean_uv": 0
+      }
+    },
+    "02:00": {
+      "timestamp": "2026-09-29T02:00:00Z",
+      "meteo": {
+        "temp": 20.4,
+        "solar_rad": 0,
+        "uv": 0,
+        "pm25": 17.6,
+        "no2": 13.8
+      },
+      "multipliers": {
+        "traffic": 0.1,
+        "industry": 0.1,
+        "airport": 0.25,
+        "uhi": 0.5
+      },
+      "active_events": [],
+      "spatial_summary": {
+        "mean_noise": 43.7306,
+        "mean_pollution": 20.1305,
+        "mean_heat": 19.8127,
+        "mean_uv": 0
+      }
+    },
+    "03:00": {
+      "timestamp": "2026-09-29T03:00:00Z",
+      "meteo": {
+        "temp": 20.5,
+        "solar_rad": 0,
+        "uv": 0,
+        "pm25": 15.6,
+        "no2": 11
+      },
+      "multipliers": {
+        "traffic": 0.1,
+        "industry": 0.1,
+        "airport": 0.25,
+        "uhi": 0.5
+      },
+      "active_events": [],
+      "spatial_summary": {
+        "mean_noise": 43.7306,
+        "mean_pollution": 18.1305,
+        "mean_heat": 19.9127,
+        "mean_uv": 0
+      }
+    },
+    "04:00": {
+      "timestamp": "2026-09-29T04:00:00Z",
+      "meteo": {
+        "temp": 20.6,
+        "solar_rad": 0,
+        "uv": 0,
+        "pm25": 13.8,
+        "no2": 9.1
+      },
+      "multipliers": {
+        "traffic": 0.1,
+        "industry": 0.1,
+        "airport": 0.25,
+        "uhi": 0.5
+      },
+      "active_events": [],
+      "spatial_summary": {
+        "mean_noise": 45.7306,
+        "mean_pollution": 16.3305,
+        "mean_heat": 20.0127,
+        "mean_uv": 0
+      }
+    },
+    "05:00": {
+      "timestamp": "2026-09-29T05:00:00Z",
+      "meteo": {
+        "temp": 20.7,
+        "solar_rad": 0,
+        "uv": 0,
+        "pm25": 14.1,
+        "no2": 9.1
+      },
+      "multipliers": {
+        "traffic": 0.15,
+        "industry": 0.15,
+        "airport": 0.25,
+        "uhi": 0.5
+      },
+      "active_events": [],
+      "spatial_summary": {
+        "mean_noise": 48.9757,
+        "mean_pollution": 17.2781,
+        "mean_heat": 20.1127,
+        "mean_uv": 0
+      }
+    },
+    "06:00": {
+      "timestamp": "2026-09-29T06:00:00Z",
+      "meteo": {
+        "temp": 20.9,
+        "solar_rad": 0,
+        "uv": 0,
+        "pm25": 14.5,
+        "no2": 10.4
+      },
+      "multipliers": {
+        "traffic": 0.25,
+        "industry": 0.2,
+        "airport": 0.45,
+        "uhi": 0.55
+      },
+      "active_events": [],
+      "spatial_summary": {
+        "mean_noise": 56.1876,
+        "mean_pollution": 18.6068,
+        "mean_heat": 20.4056,
+        "mean_uv": 0
+      }
+    },
+    "07:00": {
+      "timestamp": "2026-09-29T07:00:00Z",
+      "meteo": {
+        "temp": 20.9,
+        "solar_rad": 0,
+        "uv": 0,
+        "pm25": 15.1,
+        "no2": 12
+      },
+      "multipliers": {
+        "traffic": 0.75,
+        "industry": 0.35,
+        "airport": 0.85,
+        "uhi": 0.6
+      },
+      "active_events": {
+        "montijo_fire_emergency": {
+          "label": "Montijo Airbase Industrial Fire",
+          "type": "additive",
+          "coords": [
+            [-79000, -106500],
+            [-77000, -106500],
+            [-77000, -105500],
+            [-79000, -105500]
+          ],
+          "risks": ["pollution", "heat"]
+        }
+      },
+      "spatial_summary": {
+        "mean_noise": 66.5945,
+        "mean_pollution": 26.1938,
+        "mean_heat": 21.0989,
+        "mean_uv": 0
+      }
+    },
+    "08:00": {
+      "timestamp": "2026-09-29T08:00:00Z",
+      "meteo": {
+        "temp": 21,
+        "solar_rad": 4,
+        "uv": 0,
+        "pm25": 13.7,
+        "no2": 14.3
+      },
+      "multipliers": {
+        "traffic": 1,
+        "industry": 0.65,
+        "airport": 1,
+        "uhi": 0.65
+      },
+      "active_events": {
+        "montijo_fire_emergency": {
+          "label": "Montijo Airbase Industrial Fire",
+          "type": "additive",
+          "coords": [
+            [-79000, -106500],
+            [-77000, -106500],
+            [-77000, -105500],
+            [-79000, -105500]
+          ],
+          "risks": ["pollution", "heat"]
+        }
+      },
+      "spatial_summary": {
+        "mean_noise": 69.2816,
+        "mean_pollution": 28.5968,
+        "mean_heat": 21.2919,
+        "mean_uv": 0
+      }
+    },
+    "09:00": {
+      "timestamp": "2026-09-29T09:00:00Z",
+      "meteo": {
+        "temp": 21.3,
+        "solar_rad": 34,
+        "uv": 0.4,
+        "pm25": 12.9,
+        "no2": 13.5
+      },
+      "multipliers": {
+        "traffic": 0.85,
+        "industry": 0.85,
+        "airport": 1,
+        "uhi": 0.7
+      },
+      "active_events": {
+        "montijo_fire_emergency": {
+          "label": "Montijo Airbase Industrial Fire",
+          "type": "additive",
+          "coords": [
+            [-79000, -106500],
+            [-77000, -106500],
+            [-77000, -105500],
+            [-79000, -105500]
+          ],
+          "risks": ["pollution", "heat"]
+        }
+      },
+      "spatial_summary": {
+        "mean_noise": 67.2287,
+        "mean_pollution": 29.2149,
+        "mean_heat": 21.6848,
+        "mean_uv": 0.4838
+      }
+    },
+    "10:00": {
+      "timestamp": "2026-09-29T10:00:00Z",
+      "meteo": {
+        "temp": 21.7,
+        "solar_rad": 92,
+        "uv": 1.75,
+        "pm25": 11.2,
+        "no2": 10
+      },
+      "multipliers": {
+        "traffic": 0.65,
+        "industry": 1,
+        "airport": 1,
+        "uhi": 0.75
+      },
+      "active_events": {
+        "municipal_cooling_centers": {
+          "label": "Municipal Cooling Centers Network",
+          "type": "mitigation",
+          "coords": [
+            [
+              [-92200, -105200],
+              [-91800, -105200],
+              [-91800, -104700],
+              [-92200, -104700]
+            ],
+            [
+              [-93100, -104200],
+              [-92800, -104200],
+              [-92800, -103700],
+              [-93100, -103700]
+            ],
+            [
+              [-90800, -106100],
+              [-90400, -106100],
+              [-90400, -105600],
+              [-90800, -105600]
+            ]
+          ],
+          "risks": "heat"
+        },
+        "montijo_fire_emergency": {
+          "label": "Montijo Airbase Industrial Fire",
+          "type": "additive",
+          "coords": [
+            [-79000, -106500],
+            [-77000, -106500],
+            [-77000, -105500],
+            [-79000, -105500]
+          ],
+          "risks": ["pollution", "heat"]
+        }
+      },
+      "spatial_summary": {
+        "mean_noise": 65.9308,
+        "mean_pollution": 28.2855,
+        "mean_heat": 22.1842,
+        "mean_uv": 2.1167
+      }
+    },
+    "11:00": {
+      "timestamp": "2026-09-29T11:00:00Z",
+      "meteo": {
+        "temp": 22.5,
+        "solar_rad": 221,
+        "uv": 3.45,
+        "pm25": 10.1,
+        "no2": 8.4
+      },
+      "multipliers": {
+        "traffic": 0.5,
+        "industry": 1,
+        "airport": 1,
+        "uhi": 0.8
+      },
+      "active_events": {
+        "municipal_cooling_centers": {
+          "label": "Municipal Cooling Centers Network",
+          "type": "mitigation",
+          "coords": [
+            [
+              [-92200, -105200],
+              [-91800, -105200],
+              [-91800, -104700],
+              [-92200, -104700]
+            ],
+            [
+              [-93100, -104200],
+              [-92800, -104200],
+              [-92800, -103700],
+              [-93100, -103700]
+            ],
+            [
+              [-90800, -106100],
+              [-90400, -106100],
+              [-90400, -105600],
+              [-90800, -105600]
+            ]
+          ],
+          "risks": "heat"
+        },
+        "montijo_fire_emergency": {
+          "label": "Montijo Airbase Industrial Fire",
+          "type": "additive",
+          "coords": [
+            [-79000, -106500],
+            [-77000, -106500],
+            [-77000, -105500],
+            [-79000, -105500]
+          ],
+          "risks": ["pollution", "heat"]
+        }
+      },
+      "spatial_summary": {
+        "mean_noise": 65.4881,
+        "mean_pollution": 26.6833,
+        "mean_heat": 23.0772,
+        "mean_uv": 4.173
+      }
+    },
+    "12:00": {
+      "timestamp": "2026-09-29T12:00:00Z",
+      "meteo": {
+        "temp": 23.4,
+        "solar_rad": 357,
+        "uv": 4.75,
+        "pm25": 10.5,
+        "no2": 5.7
+      },
+      "multipliers": {
+        "traffic": 0.5,
+        "industry": 1,
+        "airport": 1,
+        "uhi": 0.85
+      },
+      "active_events": {
+        "municipal_cooling_centers": {
+          "label": "Municipal Cooling Centers Network",
+          "type": "mitigation",
+          "coords": [
+            [
+              [-92200, -105200],
+              [-91800, -105200],
+              [-91800, -104700],
+              [-92200, -104700]
+            ],
+            [
+              [-93100, -104200],
+              [-92800, -104200],
+              [-92800, -103700],
+              [-93100, -103700]
+            ],
+            [
+              [-90800, -106100],
+              [-90400, -106100],
+              [-90400, -105600],
+              [-90800, -105600]
+            ]
+          ],
+          "risks": "heat"
+        },
+        "montijo_fire_emergency": {
+          "label": "Montijo Airbase Industrial Fire",
+          "type": "additive",
+          "coords": [
+            [-79000, -106500],
+            [-77000, -106500],
+            [-77000, -105500],
+            [-79000, -105500]
+          ],
+          "risks": ["pollution", "heat"]
+        }
+      },
+      "spatial_summary": {
+        "mean_noise": 66.4881,
+        "mean_pollution": 27.0833,
+        "mean_heat": 24.0701,
+        "mean_uv": 5.7455
+      }
+    },
+    "13:00": {
+      "timestamp": "2026-09-29T13:00:00Z",
+      "meteo": {
+        "temp": 24,
+        "solar_rad": 461,
+        "uv": 5.35,
+        "pm25": 10.3,
+        "no2": 5.5
+      },
+      "multipliers": {
+        "traffic": 0.5,
+        "industry": 1,
+        "airport": 1,
+        "uhi": 0.9
+      },
+      "active_events": {
+        "municipal_cooling_centers": {
+          "label": "Municipal Cooling Centers Network",
+          "type": "mitigation",
+          "coords": [
+            [
+              [-92200, -105200],
+              [-91800, -105200],
+              [-91800, -104700],
+              [-92200, -104700]
+            ],
+            [
+              [-93100, -104200],
+              [-92800, -104200],
+              [-92800, -103700],
+              [-93100, -103700]
+            ],
+            [
+              [-90800, -106100],
+              [-90400, -106100],
+              [-90400, -105600],
+              [-90800, -105600]
+            ]
+          ],
+          "risks": "heat"
+        },
+        "montijo_fire_emergency": {
+          "label": "Montijo Airbase Industrial Fire",
+          "type": "additive",
+          "coords": [
+            [-79000, -106500],
+            [-77000, -106500],
+            [-77000, -105500],
+            [-79000, -105500]
+          ],
+          "risks": ["pollution", "heat"]
+        }
+      },
+      "spatial_summary": {
+        "mean_noise": 67.4881,
+        "mean_pollution": 26.8833,
+        "mean_heat": 24.7631,
+        "mean_uv": 6.4712
+      }
+    },
+    "14:00": {
+      "timestamp": "2026-09-29T14:00:00Z",
+      "meteo": {
+        "temp": 23.9,
+        "solar_rad": 343,
+        "uv": 5.9,
+        "pm25": 10.4,
+        "no2": 5.5
+      },
+      "multipliers": {
+        "traffic": 0.5,
+        "industry": 1,
+        "airport": 1,
+        "uhi": 0.95
+      },
+      "active_events": {
+        "municipal_cooling_centers": {
+          "label": "Municipal Cooling Centers Network",
+          "type": "mitigation",
+          "coords": [
+            [
+              [-92200, -105200],
+              [-91800, -105200],
+              [-91800, -104700],
+              [-92200, -104700]
+            ],
+            [
+              [-93100, -104200],
+              [-92800, -104200],
+              [-92800, -103700],
+              [-93100, -103700]
+            ],
+            [
+              [-90800, -106100],
+              [-90400, -106100],
+              [-90400, -105600],
+              [-90800, -105600]
+            ]
+          ],
+          "risks": "heat"
+        },
+        "montijo_fire_emergency": {
+          "label": "Montijo Airbase Industrial Fire",
+          "type": "additive",
+          "coords": [
+            [-79000, -106500],
+            [-77000, -106500],
+            [-77000, -105500],
+            [-79000, -105500]
+          ],
+          "risks": ["pollution", "heat"]
+        }
+      },
+      "spatial_summary": {
+        "mean_noise": 68.4881,
+        "mean_pollution": 26.9833,
+        "mean_heat": 24.756,
+        "mean_uv": 7.1365
+      }
+    },
+    "15:00": {
+      "timestamp": "2026-09-29T15:00:00Z",
+      "meteo": {
+        "temp": 24.1,
+        "solar_rad": 452,
+        "uv": 5.2,
+        "pm25": 10.6,
+        "no2": 5.7
+      },
+      "multipliers": {
+        "traffic": 0.65,
+        "industry": 1,
+        "airport": 1,
+        "uhi": 1
+      },
+      "active_events": {
+        "municipal_cooling_centers": {
+          "label": "Municipal Cooling Centers Network",
+          "type": "mitigation",
+          "coords": [
+            [
+              [-92200, -105200],
+              [-91800, -105200],
+              [-91800, -104700],
+              [-92200, -104700]
+            ],
+            [
+              [-93100, -104200],
+              [-92800, -104200],
+              [-92800, -103700],
+              [-93100, -103700]
+            ],
+            [
+              [-90800, -106100],
+              [-90400, -106100],
+              [-90400, -105600],
+              [-90800, -105600]
+            ]
+          ],
+          "risks": "heat"
+        },
+        "montijo_fire_emergency": {
+          "label": "Montijo Airbase Industrial Fire",
+          "type": "additive",
+          "coords": [
+            [-79000, -106500],
+            [-77000, -106500],
+            [-77000, -105500],
+            [-79000, -105500]
+          ],
+          "risks": ["pollution", "heat"]
+        }
+      },
+      "spatial_summary": {
+        "mean_noise": 69.9308,
+        "mean_pollution": 27.6855,
+        "mean_heat": 25.0489,
+        "mean_uv": 6.2898
+      }
+    },
+    "16:00": {
+      "timestamp": "2026-09-29T16:00:00Z",
+      "meteo": {
+        "temp": 23.8,
+        "solar_rad": 384,
+        "uv": 4.65,
+        "pm25": 10.8,
+        "no2": 6
+      },
+      "multipliers": {
+        "traffic": 0.75,
+        "industry": 1,
+        "airport": 1,
+        "uhi": 1
+      },
+      "active_events": {
+        "municipal_cooling_centers": {
+          "label": "Municipal Cooling Centers Network",
+          "type": "mitigation",
+          "coords": [
+            [
+              [-92200, -105200],
+              [-91800, -105200],
+              [-91800, -104700],
+              [-92200, -104700]
+            ],
+            [
+              [-93100, -104200],
+              [-92800, -104200],
+              [-92800, -103700],
+              [-93100, -103700]
+            ],
+            [
+              [-90800, -106100],
+              [-90400, -106100],
+              [-90400, -105600],
+              [-90800, -105600]
+            ]
+          ],
+          "risks": "heat"
+        },
+        "montijo_fire_emergency": {
+          "label": "Montijo Airbase Industrial Fire",
+          "type": "additive",
+          "coords": [
+            [-79000, -106500],
+            [-77000, -106500],
+            [-77000, -105500],
+            [-79000, -105500]
+          ],
+          "risks": ["pollution", "heat"]
+        }
+      },
+      "spatial_summary": {
+        "mean_noise": 69.2259,
+        "mean_pollution": 28.2204,
+        "mean_heat": 24.7489,
+        "mean_uv": 5.6245
+      }
+    },
+    "17:00": {
+      "timestamp": "2026-09-29T17:00:00Z",
+      "meteo": {
+        "temp": 22.5,
+        "solar_rad": 133,
+        "uv": 3.3,
+        "pm25": 11.4,
+        "no2": 6.3
+      },
+      "multipliers": {
+        "traffic": 1,
+        "industry": 0.85,
+        "airport": 1,
+        "uhi": 0.95
+      },
+      "active_events": {
+        "municipal_cooling_centers": {
+          "label": "Municipal Cooling Centers Network",
+          "type": "mitigation",
+          "coords": [
+            [
+              [-92200, -105200],
+              [-91800, -105200],
+              [-91800, -104700],
+              [-92200, -104700]
+            ],
+            [
+              [-93100, -104200],
+              [-92800, -104200],
+              [-92800, -103700],
+              [-93100, -103700]
+            ],
+            [
+              [-90800, -106100],
+              [-90400, -106100],
+              [-90400, -105600],
+              [-90800, -105600]
+            ]
+          ],
+          "risks": "heat"
+        },
+        "montijo_fire_emergency": {
+          "label": "Montijo Airbase Industrial Fire",
+          "type": "additive",
+          "coords": [
+            [-79000, -106500],
+            [-77000, -106500],
+            [-77000, -105500],
+            [-79000, -105500]
+          ],
+          "risks": ["pollution", "heat"]
+        }
+      },
+      "spatial_summary": {
+        "mean_noise": 67.6714,
+        "mean_pollution": 28.2172,
+        "mean_heat": 23.356,
+        "mean_uv": 3.9916
+      }
+    },
+    "18:00": {
+      "timestamp": "2026-09-29T18:00:00Z",
+      "meteo": {
+        "temp": 22.1,
+        "solar_rad": 67,
+        "uv": 0.75,
+        "pm25": 11.6,
+        "no2": 8
+      },
+      "multipliers": {
+        "traffic": 0.85,
+        "industry": 0.65,
+        "airport": 1,
+        "uhi": 0.9
+      },
+      "active_events": {
+        "municipal_cooling_centers": {
+          "label": "Municipal Cooling Centers Network",
+          "type": "mitigation",
+          "coords": [
+            [
+              [-92200, -105200],
+              [-91800, -105200],
+              [-91800, -104700],
+              [-92200, -104700]
+            ],
+            [
+              [-93100, -104200],
+              [-92800, -104200],
+              [-92800, -103700],
+              [-93100, -103700]
+            ],
+            [
+              [-90800, -106100],
+              [-90400, -106100],
+              [-90400, -105600],
+              [-90800, -105600]
+            ]
+          ],
+          "risks": "heat"
+        },
+        "lisbon_sound_fest": {
+          "label": "Lisbon Sound Fest",
+          "type": "additive",
+          "coords": [-91500, -106000],
+          "risks": "noise"
+        },
+        "montijo_fire_emergency": {
+          "label": "Montijo Airbase Industrial Fire",
+          "type": "additive",
+          "coords": [
+            [-79000, -106500],
+            [-77000, -106500],
+            [-77000, -105500],
+            [-79000, -105500]
+          ],
+          "risks": ["pollution", "heat"]
+        }
+      },
+      "spatial_summary": {
+        "mean_noise": 64.7417,
+        "mean_pollution": 25.9945,
+        "mean_heat": 22.8631,
+        "mean_uv": 0.9072
+      }
+    },
+    "19:00": {
+      "timestamp": "2026-09-29T19:00:00Z",
+      "meteo": {
+        "temp": 21.7,
+        "solar_rad": 24,
+        "uv": 0.25,
+        "pm25": 11.6,
+        "no2": 9.6
+      },
+      "multipliers": {
+        "traffic": 0.65,
+        "industry": 0.35,
+        "airport": 1,
+        "uhi": 0.85
+      },
+      "active_events": {
+        "lisbon_sound_fest": {
+          "label": "Lisbon Sound Fest",
+          "type": "additive",
+          "coords": [-91500, -106000],
+          "risks": "noise"
+        },
+        "montijo_fire_emergency": {
+          "label": "Montijo Airbase Industrial Fire",
+          "type": "additive",
+          "coords": [
+            [-79000, -106500],
+            [-77000, -106500],
+            [-77000, -105500],
+            [-79000, -105500]
+          ],
+          "risks": ["pollution", "heat"]
+        }
+      },
+      "spatial_summary": {
+        "mean_noise": 61.5666,
+        "mean_pollution": 22.4443,
+        "mean_heat": 22.3636,
+        "mean_uv": 0.3024
+      }
+    },
+    "20:00": {
+      "timestamp": "2026-09-29T20:00:00Z",
+      "meteo": {
+        "temp": 21.3,
+        "solar_rad": 2,
+        "uv": 0,
+        "pm25": 11.5,
+        "no2": 10.5
+      },
+      "multipliers": {
+        "traffic": 0.5,
+        "industry": 0.2,
+        "airport": 1,
+        "uhi": 0.8
+      },
+      "active_events": {
+        "lisbon_sound_fest": {
+          "label": "Lisbon Sound Fest",
+          "type": "additive",
+          "coords": [-91500, -106000],
+          "risks": "noise"
+        },
+        "montijo_fire_emergency": {
+          "label": "Montijo Airbase Industrial Fire",
+          "type": "additive",
+          "coords": [
+            [-79000, -106500],
+            [-77000, -106500],
+            [-77000, -105500],
+            [-79000, -105500]
+          ],
+          "risks": ["pollution", "heat"]
+        }
+      },
+      "spatial_summary": {
+        "mean_noise": 58.8315,
+        "mean_pollution": 20.4017,
+        "mean_heat": 21.8707,
+        "mean_uv": 0
+      }
+    },
+    "21:00": {
+      "timestamp": "2026-09-29T21:00:00Z",
+      "meteo": {
+        "temp": 21.4,
+        "solar_rad": 0,
+        "uv": 0,
+        "pm25": 12.3,
+        "no2": 10.5
+      },
+      "multipliers": {
+        "traffic": 0.35,
+        "industry": 0.1,
+        "airport": 0.85,
+        "uhi": 0.75
+      },
+      "active_events": {
+        "lisbon_sound_fest": {
+          "label": "Lisbon Sound Fest",
+          "type": "additive",
+          "coords": [-91500, -106000],
+          "risks": "noise"
+        },
+        "montijo_fire_emergency": {
+          "label": "Montijo Airbase Industrial Fire",
+          "type": "additive",
+          "coords": [
+            [-79000, -106500],
+            [-77000, -106500],
+            [-77000, -105500],
+            [-79000, -105500]
+          ],
+          "risks": ["pollution", "heat"]
+        }
+      },
+      "spatial_summary": {
+        "mean_noise": 55.8294,
+        "mean_pollution": 19.6539,
+        "mean_heat": 21.8777,
+        "mean_uv": 0
+      }
+    },
+    "22:00": {
+      "timestamp": "2026-09-29T22:00:00Z",
+      "meteo": {
+        "temp": 21.3,
+        "solar_rad": 0,
+        "uv": 0,
+        "pm25": 12.1,
+        "no2": 9
+      },
+      "multipliers": {
+        "traffic": 0.25,
+        "industry": 0.1,
+        "airport": 0.65,
+        "uhi": 0.7
+      },
+      "active_events": {
+        "lisbon_sound_fest": {
+          "label": "Lisbon Sound Fest",
+          "type": "additive",
+          "coords": [-91500, -106000],
+          "risks": "noise"
+        },
+        "montijo_fire_emergency": {
+          "label": "Montijo Airbase Industrial Fire",
+          "type": "additive",
+          "coords": [
+            [-79000, -106500],
+            [-77000, -106500],
+            [-77000, -105500],
+            [-79000, -105500]
+          ],
+          "risks": ["pollution", "heat"]
+        }
+      },
+      "spatial_summary": {
+        "mean_noise": 52.7149,
+        "mean_pollution": 19.0053,
+        "mean_heat": 21.6848,
+        "mean_uv": 0
+      }
+    },
+    "23:00": {
+      "timestamp": "2026-09-29T23:00:00Z",
+      "meteo": {
+        "temp": 21.2,
+        "solar_rad": 0,
+        "uv": 0,
+        "pm25": 12.2,
+        "no2": 8.3
+      },
+      "multipliers": {
+        "traffic": 0.15,
+        "industry": 0.1,
+        "airport": 0.45,
+        "uhi": 0.65
+      },
+      "active_events": {
+        "lisbon_sound_fest": {
+          "label": "Lisbon Sound Fest",
+          "type": "additive",
+          "coords": [-91500, -106000],
+          "risks": "noise"
+        },
+        "montijo_fire_emergency": {
+          "label": "Montijo Airbase Industrial Fire",
+          "type": "additive",
+          "coords": [
+            [-79000, -106500],
+            [-77000, -106500],
+            [-77000, -105500],
+            [-79000, -105500]
+          ],
+          "risks": ["pollution", "heat"]
+        }
+      },
+      "spatial_summary": {
+        "mean_noise": 49.6004,
+        "mean_pollution": 18.6567,
+        "mean_heat": 21.4919,
+        "mean_uv": 0
+      }
+    },
+    "00:00": {
+      "timestamp": "2026-09-30T00:00:00Z",
+      "meteo": {
+        "temp": 20.9,
+        "solar_rad": 0,
+        "uv": 0,
+        "pm25": 11.7,
+        "no2": 7.7
+      },
+      "multipliers": {
+        "traffic": 0.1,
+        "industry": 0.1,
+        "airport": 0.25,
+        "uhi": 0.6
+      },
+      "active_events": [],
+      "spatial_summary": {
+        "mean_noise": 45.7306,
+        "mean_pollution": 14.2305,
+        "mean_heat": 20.4986,
+        "mean_uv": 0
+      }
+    }
+  }
+}

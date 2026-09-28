@@ -1,0 +1,29 @@
+{
+  "date": "2026-09-27",
+  "total_hours": 1,
+  "hours": {
+    "00:00": {
+      "timestamp": "2026-09-28T00:00:00Z",
+      "meteo": {
+        "temp": 21.4,
+        "solar_rad": 0,
+        "uv": 0,
+        "pm25": 12,
+        "no2": 12.3
+      },
+      "multipliers": {
+        "traffic": 0.1,
+        "industry": 0.1,
+        "airport": 0.25,
+        "uhi": 0.6
+      },
+      "active_events": [],
+      "spatial_summary": {
+        "mean_noise": 45.7306,
+        "mean_pollution": 14.5305,
+        "mean_heat": 20.9986,
+        "mean_uv": 0
+      }
+    }
+  }
+}

@@ -1,0 +1,827 @@
+{
+  "date": "2026-09-28",
+  "total_hours": 24,
+  "hours": {
+    "01:00": {
+      "timestamp": "2026-09-28T01:00:00Z",
+      "meteo": {
+        "temp": 21.1,
+        "solar_rad": 0,
+        "uv": 0,
+        "pm25": 10.7,
+        "no2": 15.4
+      },
+      "multipliers": {
+        "traffic": 0.1,
+        "industry": 0.1,
+        "airport": 0.25,
+        "uhi": 0.55
+      },
+      "active_events": [],
+      "spatial_summary": {
+        "mean_noise": 43.7306,
+        "mean_pollution": 13.2305,
+        "mean_heat": 20.6056,
+        "mean_uv": 0
+      }
+    },
+    "02:00": {
+      "timestamp": "2026-09-28T02:00:00Z",
+      "meteo": {
+        "temp": 20.6,
+        "solar_rad": 0,
+        "uv": 0,
+        "pm25": 11.1,
+        "no2": 12.2
+      },
+      "multipliers": {
+        "traffic": 0.1,
+        "industry": 0.1,
+        "airport": 0.25,
+        "uhi": 0.5
+      },
+      "active_events": [],
+      "spatial_summary": {
+        "mean_noise": 43.7306,
+        "mean_pollution": 13.6305,
+        "mean_heat": 20.0127,
+        "mean_uv": 0
+      }
+    },
+    "03:00": {
+      "timestamp": "2026-09-28T03:00:00Z",
+      "meteo": {
+        "temp": 20.4,
+        "solar_rad": 0,
+        "uv": 0,
+        "pm25": 11.4,
+        "no2": 12.3
+      },
+      "multipliers": {
+        "traffic": 0.1,
+        "industry": 0.1,
+        "airport": 0.25,
+        "uhi": 0.5
+      },
+      "active_events": [],
+      "spatial_summary": {
+        "mean_noise": 43.7306,
+        "mean_pollution": 13.9305,
+        "mean_heat": 19.8127,
+        "mean_uv": 0
+      }
+    },
+    "04:00": {
+      "timestamp": "2026-09-28T04:00:00Z",
+      "meteo": {
+        "temp": 20.2,
+        "solar_rad": 0,
+        "uv": 0,
+        "pm25": 11.5,
+        "no2": 12
+      },
+      "multipliers": {
+        "traffic": 0.1,
+        "industry": 0.1,
+        "airport": 0.25,
+        "uhi": 0.5
+      },
+      "active_events": [],
+      "spatial_summary": {
+        "mean_noise": 45.7306,
+        "mean_pollution": 14.0305,
+        "mean_heat": 19.6127,
+        "mean_uv": 0
+      }
+    },
+    "05:00": {
+      "timestamp": "2026-09-28T05:00:00Z",
+      "meteo": {
+        "temp": 20.2,
+        "solar_rad": 0,
+        "uv": 0,
+        "pm25": 11.5,
+        "no2": 12.5
+      },
+      "multipliers": {
+        "traffic": 0.15,
+        "industry": 0.15,
+        "airport": 0.25,
+        "uhi": 0.5
+      },
+      "active_events": [],
+      "spatial_summary": {
+        "mean_noise": 48.9757,
+        "mean_pollution": 14.6781,
+        "mean_heat": 19.6127,
+        "mean_uv": 0
+      }
+    },
+    "06:00": {
+      "timestamp": "2026-09-28T06:00:00Z",
+      "meteo": {
+        "temp": 19.9,
+        "solar_rad": 0,
+        "uv": 0,
+        "pm25": 12.5,
+        "no2": 18.3
+      },
+      "multipliers": {
+        "traffic": 0.25,
+        "industry": 0.2,
+        "airport": 0.45,
+        "uhi": 0.55
+      },
+      "active_events": [],
+      "spatial_summary": {
+        "mean_noise": 56.1876,
+        "mean_pollution": 16.6068,
+        "mean_heat": 19.4056,
+        "mean_uv": 0
+      }
+    },
+    "07:00": {
+      "timestamp": "2026-09-28T07:00:00Z",
+      "meteo": {
+        "temp": 19.6,
+        "solar_rad": 0,
+        "uv": 0,
+        "pm25": 15.5,
+        "no2": 28.1
+      },
+      "multipliers": {
+        "traffic": 0.75,
+        "industry": 0.35,
+        "airport": 0.85,
+        "uhi": 0.6
+      },
+      "active_events": [],
+      "spatial_summary": {
+        "mean_noise": 66.5945,
+        "mean_pollution": 22.9488,
+        "mean_heat": 19.1986,
+        "mean_uv": 0
+      }
+    },
+    "08:00": {
+      "timestamp": "2026-09-28T08:00:00Z",
+      "meteo": {
+        "temp": 19.5,
+        "solar_rad": 6,
+        "uv": 0.05,
+        "pm25": 14.2,
+        "no2": 34.9
+      },
+      "multipliers": {
+        "traffic": 1,
+        "industry": 0.65,
+        "airport": 1,
+        "uhi": 0.65
+      },
+      "active_events": [],
+      "spatial_summary": {
+        "mean_noise": 69.2816,
+        "mean_pollution": 25.4519,
+        "mean_heat": 19.1915,
+        "mean_uv": 0.0605
+      }
+    },
+    "09:00": {
+      "timestamp": "2026-09-28T09:00:00Z",
+      "meteo": {
+        "temp": 20.1,
+        "solar_rad": 75,
+        "uv": 0.6,
+        "pm25": 14.5,
+        "no2": 42.2
+      },
+      "multipliers": {
+        "traffic": 0.85,
+        "industry": 0.85,
+        "airport": 1,
+        "uhi": 0.7
+      },
+      "active_events": [],
+      "spatial_summary": {
+        "mean_noise": 67.2287,
+        "mean_pollution": 27.17,
+        "mean_heat": 19.8845,
+        "mean_uv": 0.7257
+      }
+    },
+    "10:00": {
+      "timestamp": "2026-09-28T10:00:00Z",
+      "meteo": {
+        "temp": 20.7,
+        "solar_rad": 164,
+        "uv": 1.85,
+        "pm25": 17,
+        "no2": 48.1
+      },
+      "multipliers": {
+        "traffic": 0.65,
+        "industry": 1,
+        "airport": 1,
+        "uhi": 0.75
+      },
+      "active_events": {
+        "municipal_cooling_centers": {
+          "label": "Municipal Cooling Centers Network",
+          "type": "mitigation",
+          "coords": [
+            [
+              [-92200, -105200],
+              [-91800, -105200],
+              [-91800, -104700],
+              [-92200, -104700]
+            ],
+            [
+              [-93100, -104200],
+              [-92800, -104200],
+              [-92800, -103700],
+              [-93100, -103700]
+            ],
+            [
+              [-90800, -106100],
+              [-90400, -106100],
+              [-90400, -105600],
+              [-90800, -105600]
+            ]
+          ],
+          "risks": "heat"
+        }
+      },
+      "spatial_summary": {
+        "mean_noise": 65.9308,
+        "mean_pollution": 30.4406,
+        "mean_heat": 20.5839,
+        "mean_uv": 2.2377
+      }
+    },
+    "11:00": {
+      "timestamp": "2026-09-28T11:00:00Z",
+      "meteo": {
+        "temp": 21.7,
+        "solar_rad": 270,
+        "uv": 3.05,
+        "pm25": 20.3,
+        "no2": 46.1
+      },
+      "multipliers": {
+        "traffic": 0.5,
+        "industry": 1,
+        "airport": 1,
+        "uhi": 0.8
+      },
+      "active_events": {
+        "municipal_cooling_centers": {
+          "label": "Municipal Cooling Centers Network",
+          "type": "mitigation",
+          "coords": [
+            [
+              [-92200, -105200],
+              [-91800, -105200],
+              [-91800, -104700],
+              [-92200, -104700]
+            ],
+            [
+              [-93100, -104200],
+              [-92800, -104200],
+              [-92800, -103700],
+              [-93100, -103700]
+            ],
+            [
+              [-90800, -106100],
+              [-90400, -106100],
+              [-90400, -105600],
+              [-90800, -105600]
+            ]
+          ],
+          "risks": "heat"
+        }
+      },
+      "spatial_summary": {
+        "mean_noise": 65.4881,
+        "mean_pollution": 33.2383,
+        "mean_heat": 21.6768,
+        "mean_uv": 3.6892
+      }
+    },
+    "12:00": {
+      "timestamp": "2026-09-28T12:00:00Z",
+      "meteo": {
+        "temp": 22.6,
+        "solar_rad": 384,
+        "uv": 3.15,
+        "pm25": 21.6,
+        "no2": 36.8
+      },
+      "multipliers": {
+        "traffic": 0.5,
+        "industry": 1,
+        "airport": 1,
+        "uhi": 0.85
+      },
+      "active_events": {
+        "municipal_cooling_centers": {
+          "label": "Municipal Cooling Centers Network",
+          "type": "mitigation",
+          "coords": [
+            [
+              [-92200, -105200],
+              [-91800, -105200],
+              [-91800, -104700],
+              [-92200, -104700]
+            ],
+            [
+              [-93100, -104200],
+              [-92800, -104200],
+              [-92800, -103700],
+              [-93100, -103700]
+            ],
+            [
+              [-90800, -106100],
+              [-90400, -106100],
+              [-90400, -105600],
+              [-90800, -105600]
+            ]
+          ],
+          "risks": "heat"
+        }
+      },
+      "spatial_summary": {
+        "mean_noise": 66.4881,
+        "mean_pollution": 34.5383,
+        "mean_heat": 22.6698,
+        "mean_uv": 3.8101
+      }
+    },
+    "13:00": {
+      "timestamp": "2026-09-28T13:00:00Z",
+      "meteo": {
+        "temp": 24,
+        "solar_rad": 562,
+        "uv": 1,
+        "pm25": 19,
+        "no2": 32.3
+      },
+      "multipliers": {
+        "traffic": 0.5,
+        "industry": 1,
+        "airport": 1,
+        "uhi": 0.9
+      },
+      "active_events": {
+        "municipal_cooling_centers": {
+          "label": "Municipal Cooling Centers Network",
+          "type": "mitigation",
+          "coords": [
+            [
+              [-92200, -105200],
+              [-91800, -105200],
+              [-91800, -104700],
+              [-92200, -104700]
+            ],
+            [
+              [-93100, -104200],
+              [-92800, -104200],
+              [-92800, -103700],
+              [-93100, -103700]
+            ],
+            [
+              [-90800, -106100],
+              [-90400, -106100],
+              [-90400, -105600],
+              [-90800, -105600]
+            ]
+          ],
+          "risks": "heat"
+        }
+      },
+      "spatial_summary": {
+        "mean_noise": 67.4881,
+        "mean_pollution": 31.9383,
+        "mean_heat": 24.1627,
+        "mean_uv": 1.2096
+      }
+    },
+    "14:00": {
+      "timestamp": "2026-09-28T14:00:00Z",
+      "meteo": {
+        "temp": 25.5,
+        "solar_rad": 733,
+        "uv": 4.1,
+        "pm25": 17.1,
+        "no2": 17.1
+      },
+      "multipliers": {
+        "traffic": 0.5,
+        "industry": 1,
+        "airport": 1,
+        "uhi": 0.95
+      },
+      "active_events": {
+        "municipal_cooling_centers": {
+          "label": "Municipal Cooling Centers Network",
+          "type": "mitigation",
+          "coords": [
+            [
+              [-92200, -105200],
+              [-91800, -105200],
+              [-91800, -104700],
+              [-92200, -104700]
+            ],
+            [
+              [-93100, -104200],
+              [-92800, -104200],
+              [-92800, -103700],
+              [-93100, -103700]
+            ],
+            [
+              [-90800, -106100],
+              [-90400, -106100],
+              [-90400, -105600],
+              [-90800, -105600]
+            ]
+          ],
+          "risks": "heat"
+        }
+      },
+      "spatial_summary": {
+        "mean_noise": 68.4881,
+        "mean_pollution": 30.0383,
+        "mean_heat": 25.7556,
+        "mean_uv": 4.9592
+      }
+    },
+    "15:00": {
+      "timestamp": "2026-09-28T15:00:00Z",
+      "meteo": {
+        "temp": 26.8,
+        "solar_rad": 713,
+        "uv": 5.55,
+        "pm25": 16.1,
+        "no2": 11.4
+      },
+      "multipliers": {
+        "traffic": 0.65,
+        "industry": 1,
+        "airport": 1,
+        "uhi": 1
+      },
+      "active_events": {
+        "municipal_cooling_centers": {
+          "label": "Municipal Cooling Centers Network",
+          "type": "mitigation",
+          "coords": [
+            [
+              [-92200, -105200],
+              [-91800, -105200],
+              [-91800, -104700],
+              [-92200, -104700]
+            ],
+            [
+              [-93100, -104200],
+              [-92800, -104200],
+              [-92800, -103700],
+              [-93100, -103700]
+            ],
+            [
+              [-90800, -106100],
+              [-90400, -106100],
+              [-90400, -105600],
+              [-90800, -105600]
+            ]
+          ],
+          "risks": "heat"
+        }
+      },
+      "spatial_summary": {
+        "mean_noise": 69.9308,
+        "mean_pollution": 29.5406,
+        "mean_heat": 27.1486,
+        "mean_uv": 6.7131
+      }
+    },
+    "16:00": {
+      "timestamp": "2026-09-28T16:00:00Z",
+      "meteo": {
+        "temp": 27,
+        "solar_rad": 584,
+        "uv": 4.65,
+        "pm25": 16.7,
+        "no2": 10.7
+      },
+      "multipliers": {
+        "traffic": 0.75,
+        "industry": 1,
+        "airport": 1,
+        "uhi": 1
+      },
+      "active_events": {
+        "municipal_cooling_centers": {
+          "label": "Municipal Cooling Centers Network",
+          "type": "mitigation",
+          "coords": [
+            [
+              [-92200, -105200],
+              [-91800, -105200],
+              [-91800, -104700],
+              [-92200, -104700]
+            ],
+            [
+              [-93100, -104200],
+              [-92800, -104200],
+              [-92800, -103700],
+              [-93100, -103700]
+            ],
+            [
+              [-90800, -106100],
+              [-90400, -106100],
+              [-90400, -105600],
+              [-90800, -105600]
+            ]
+          ],
+          "risks": "heat"
+        }
+      },
+      "spatial_summary": {
+        "mean_noise": 69.2259,
+        "mean_pollution": 30.4754,
+        "mean_heat": 27.3486,
+        "mean_uv": 5.6245
+      }
+    },
+    "17:00": {
+      "timestamp": "2026-09-28T17:00:00Z",
+      "meteo": {
+        "temp": 26.2,
+        "solar_rad": 444,
+        "uv": 3.25,
+        "pm25": 18.3,
+        "no2": 10.7
+      },
+      "multipliers": {
+        "traffic": 1,
+        "industry": 0.85,
+        "airport": 1,
+        "uhi": 0.95
+      },
+      "active_events": {
+        "municipal_cooling_centers": {
+          "label": "Municipal Cooling Centers Network",
+          "type": "mitigation",
+          "coords": [
+            [
+              [-92200, -105200],
+              [-91800, -105200],
+              [-91800, -104700],
+              [-92200, -104700]
+            ],
+            [
+              [-93100, -104200],
+              [-92800, -104200],
+              [-92800, -103700],
+              [-93100, -103700]
+            ],
+            [
+              [-90800, -106100],
+              [-90400, -106100],
+              [-90400, -105600],
+              [-90800, -105600]
+            ]
+          ],
+          "risks": "heat"
+        }
+      },
+      "spatial_summary": {
+        "mean_noise": 67.6714,
+        "mean_pollution": 31.4723,
+        "mean_heat": 26.4556,
+        "mean_uv": 3.9311
+      }
+    },
+    "18:00": {
+      "timestamp": "2026-09-28T18:00:00Z",
+      "meteo": {
+        "temp": 25.3,
+        "solar_rad": 287,
+        "uv": 1.8,
+        "pm25": 20,
+        "no2": 13.6
+      },
+      "multipliers": {
+        "traffic": 0.85,
+        "industry": 0.65,
+        "airport": 1,
+        "uhi": 0.9
+      },
+      "active_events": {
+        "municipal_cooling_centers": {
+          "label": "Municipal Cooling Centers Network",
+          "type": "mitigation",
+          "coords": [
+            [
+              [-92200, -105200],
+              [-91800, -105200],
+              [-91800, -104700],
+              [-92200, -104700]
+            ],
+            [
+              [-93100, -104200],
+              [-92800, -104200],
+              [-92800, -103700],
+              [-93100, -103700]
+            ],
+            [
+              [-90800, -106100],
+              [-90400, -106100],
+              [-90400, -105600],
+              [-90800, -105600]
+            ]
+          ],
+          "risks": "heat"
+        }
+      },
+      "spatial_summary": {
+        "mean_noise": 63.8389,
+        "mean_pollution": 30.7496,
+        "mean_heat": 25.4627,
+        "mean_uv": 2.1772
+      }
+    },
+    "19:00": {
+      "timestamp": "2026-09-28T19:00:00Z",
+      "meteo": {
+        "temp": 23.9,
+        "solar_rad": 93,
+        "uv": 0.6,
+        "pm25": 20.9,
+        "no2": 20.2
+      },
+      "multipliers": {
+        "traffic": 0.65,
+        "industry": 0.35,
+        "airport": 1,
+        "uhi": 0.85
+      },
+      "active_events": {
+        "lisbon_sound_fest": {
+          "label": "Lisbon Sound Fest",
+          "type": "additive",
+          "coords": [-91500, -106000],
+          "risks": "noise"
+        }
+      },
+      "spatial_summary": {
+        "mean_noise": 61.5666,
+        "mean_pollution": 28.0993,
+        "mean_heat": 23.9633,
+        "mean_uv": 0.7257
+      }
+    },
+    "20:00": {
+      "timestamp": "2026-09-28T20:00:00Z",
+      "meteo": {
+        "temp": 22.6,
+        "solar_rad": 4,
+        "uv": 0,
+        "pm25": 21,
+        "no2": 27.1
+      },
+      "multipliers": {
+        "traffic": 0.5,
+        "industry": 0.2,
+        "airport": 1,
+        "uhi": 0.8
+      },
+      "active_events": {
+        "lisbon_sound_fest": {
+          "label": "Lisbon Sound Fest",
+          "type": "additive",
+          "coords": [-91500, -106000],
+          "risks": "noise"
+        }
+      },
+      "spatial_summary": {
+        "mean_noise": 58.8315,
+        "mean_pollution": 26.2568,
+        "mean_heat": 22.5703,
+        "mean_uv": 0
+      }
+    },
+    "21:00": {
+      "timestamp": "2026-09-28T21:00:00Z",
+      "meteo": {
+        "temp": 22,
+        "solar_rad": 0,
+        "uv": 0,
+        "pm25": 20.7,
+        "no2": 31.2
+      },
+      "multipliers": {
+        "traffic": 0.35,
+        "industry": 0.1,
+        "airport": 0.85,
+        "uhi": 0.75
+      },
+      "active_events": {
+        "lisbon_sound_fest": {
+          "label": "Lisbon Sound Fest",
+          "type": "additive",
+          "coords": [-91500, -106000],
+          "risks": "noise"
+        }
+      },
+      "spatial_summary": {
+        "mean_noise": 55.8294,
+        "mean_pollution": 24.409,
+        "mean_heat": 21.8774,
+        "mean_uv": 0
+      }
+    },
+    "22:00": {
+      "timestamp": "2026-09-28T22:00:00Z",
+      "meteo": {
+        "temp": 21.4,
+        "solar_rad": 0,
+        "uv": 0,
+        "pm25": 20.4,
+        "no2": 30.2
+      },
+      "multipliers": {
+        "traffic": 0.25,
+        "industry": 0.1,
+        "airport": 0.65,
+        "uhi": 0.7
+      },
+      "active_events": {
+        "lisbon_sound_fest": {
+          "label": "Lisbon Sound Fest",
+          "type": "additive",
+          "coords": [-91500, -106000],
+          "risks": "noise"
+        }
+      },
+      "spatial_summary": {
+        "mean_noise": 52.7149,
+        "mean_pollution": 23.6604,
+        "mean_heat": 21.1845,
+        "mean_uv": 0
+      }
+    },
+    "23:00": {
+      "timestamp": "2026-09-28T23:00:00Z",
+      "meteo": {
+        "temp": 20.9,
+        "solar_rad": 0,
+        "uv": 0,
+        "pm25": 20.3,
+        "no2": 28.5
+      },
+      "multipliers": {
+        "traffic": 0.15,
+        "industry": 0.1,
+        "airport": 0.45,
+        "uhi": 0.65
+      },
+      "active_events": {
+        "lisbon_sound_fest": {
+          "label": "Lisbon Sound Fest",
+          "type": "additive",
+          "coords": [-91500, -106000],
+          "risks": "noise"
+        }
+      },
+      "spatial_summary": {
+        "mean_noise": 49.6004,
+        "mean_pollution": 23.1117,
+        "mean_heat": 20.5915,
+        "mean_uv": 0
+      }
+    },
+    "00:00": {
+      "timestamp": "2026-09-29T00:00:00Z",
+      "meteo": {
+        "temp": 20.6,
+        "solar_rad": 0,
+        "uv": 0,
+        "pm25": 19.8,
+        "no2": 24.2
+      },
+      "multipliers": {
+        "traffic": 0.1,
+        "industry": 0.1,
+        "airport": 0.25,
+        "uhi": 0.6
+      },
+      "active_events": [],
+      "spatial_summary": {
+        "mean_noise": 45.7306,
+        "mean_pollution": 22.3305,
+        "mean_heat": 20.1986,
+        "mean_uv": 0
+      }
+    }
+  }
+}
