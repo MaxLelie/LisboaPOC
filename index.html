@@ -8,6 +8,9 @@
   <!-- Leaflet CSS & JS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  
+  <!-- Proj4js for EPSG:3763 (Lisbon Meters) -> WGS84 Lat/Lng Reprojection -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.9.0/proj4.js"></script>
 
   <style>
     :root {
@@ -32,7 +35,6 @@
       overflow: hidden;
     }
 
-    /* Header */
     header {
       background: #1e293b;
       color: white;
@@ -43,10 +45,9 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.15);
       z-index: 1100;
     }
-    header h1 { margin: 0; font-size: 1.1rem; font-weight: 700; letter-spacing: 0.5px; }
+    header h1 { margin: 0; font-size: 1.1rem; font-weight: 700; }
     header span { font-size: 0.75rem; color: #94a3b8; }
 
-    /* Main Responsive Container */
     #main-container {
       display: flex;
       flex-direction: column;
@@ -55,7 +56,6 @@
       overflow: hidden;
     }
 
-    /* Map Box Wrapper */
     #map-wrapper {
       position: relative;
       flex: 1;
@@ -64,12 +64,8 @@
       background: #e5e7eb;
     }
 
-    #map {
-      height: 100%;
-      width: 100%;
-    }
+    #map { height: 100%; width: 100%; }
 
-    /* Top Mode Switcher Overlay */
     #top-bar {
       position: absolute;
       top: 12px;
@@ -104,7 +100,6 @@
       box-shadow: 0 2px 6px rgba(0, 123, 255, 0.3);
     }
 
-    /* Bottom Control Panel */
     #controls {
       background: var(--card-bg);
       padding: 14px 16px;
@@ -136,7 +131,6 @@
     }
     .btn:hover { background: var(--primary-dark); }
     .btn-secondary { background: #64748b; }
-    .btn-secondary:hover { background: #475569; }
 
     label { font-weight: 600; font-size: 0.8rem; color: #334155; display: block; margin-bottom: 3px; }
     select, input[type="number"] {
@@ -148,7 +142,6 @@
       background: #fff;
     }
 
-    /* Hazard Legend */
     #legend {
       display: flex;
       align-items: center;
@@ -164,7 +157,6 @@
     .legend-item { display: flex; align-items: center; gap: 5px; }
     .legend-box { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
 
-    /* Settings Panel */
     #settings-panel {
       display: none;
       background: #f8fafc;
@@ -175,16 +167,10 @@
     }
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
 
-    /* Desktop Responsive Layout */
     @media (min-width: 768px) {
       #main-container { flex-direction: row; }
       #map-wrapper { flex: 1; height: 100%; }
-      #controls {
-        width: 380px;
-        max-height: 100%;
-        border-radius: 0;
-        box-shadow: -4px 0 15px rgba(0,0,0,0.08);
-      }
+      #controls { width: 380px; max-height: 100%; border-radius: 0; }
     }
   </style>
 </head>
@@ -198,8 +184,6 @@
   </header>
 
   <div id="main-container">
-    
-    <!-- Map Container -->
     <div id="map-wrapper">
       <div id="top-bar">
         <button class="mode-btn active" onclick="setMapLayer('risk', this)">Risk Index</button>
@@ -211,18 +195,13 @@
       <div id="map"></div>
     </div>
 
-    <!-- Control Panel -->
     <div id="controls">
       <div class="row">
         <button id="playBtn" class="btn" onclick="togglePlay()">▶ Play 24h</button>
         <div class="flex-1">
           <label for="date">Select Date</label>
           <select id="date" onchange="loadDailyData()">
-            <option value="2026-09-28">Sep 28, 2026</option>
-            <option value="2026-09-29">Sep 29, 2026</option>
-            <option value="2026-09-30">Sep 30, 2026</option>
-            <option value="2026-10-01">Oct 01, 2026</option>
-            <option value="2026-10-02">Oct 02, 2026</option>
+            <option value="">Detecting JSON files...</option>
           </select>
         </div>
         <button class="btn btn-secondary" onclick="toggleSettings()">⚙ Limits</button>
@@ -236,7 +215,6 @@
         <input type="range" id="hour" min="0" max="23" value="15" style="width:100%; margin-top:4px;" oninput="updateFrame()">
       </div>
 
-      <!-- Color Legend -->
       <div id="legend">
         <div class="legend-item"><span class="legend-box" style="background:#2ecc71;"></span> Safe</div>
         <div class="legend-item"><span class="legend-box" style="background:#f39c12;"></span> Moderate</div>
@@ -252,7 +230,6 @@
         </select>
       </div>
 
-      <!-- Threshold Settings Drawer -->
       <div id="settings-panel">
         <label style="color: var(--primary); margin-bottom: 6px;">Hazard Thresholds (Safe → Danger)</label>
         
@@ -304,37 +281,47 @@
   </div>
 
   <script>
-    // 1. BOUNDED LISBON MAP SETUP
-    // Restrict panning and set min/max zoom limits around Greater Lisbon
-    const lisbonCenter = [38.7369, -9.1426];
-    const lisbonBounds = L.latLngBounds([[38.58, -9.35], [38.88, -8.95]]);
+    // Define EPSG:3763 (PT-TM06 / ETRS89 Lisbon local meter projection)
+    proj4.defs("EPSG:3763", "+proj=tmerc +lat_0=39.66825833333333 +lon_0=-8.133108333333333 +k=1 +x_0=0 +y_0=0 +ellps=GRS80 +units=m +no_defs");
 
+    // Coordinate Translation Helper (Projected Meters -> WGS84 [lat, lng])
+    function toLatLng(coord) {
+      if (!coord || coord.length < 2) return null;
+      let x = coord[0], y = coord[1];
+      
+      // If coordinates are in meters (|coord| > 180), convert EPSG:3763 -> EPSG:4326
+      if (Math.abs(x) > 180 || Math.abs(y) > 180) {
+        const lonlat = proj4("EPSG:3763", "EPSG:4326", [x, y]);
+        return [lonlat[1], lonlat[0]]; // Return [lat, lng] for Leaflet
+      }
+      
+      // Already WGS84: ensure [lat, lng] ordering
+      if (x < 0 && y > 0) return [y, x];
+      return [x, y];
+    }
+
+    // Initialize Bounded Leaflet Map
+    const lisbonBounds = L.latLngBounds([[38.58, -9.35], [38.88, -8.95]]);
     const map = L.map('map', {
       maxBounds: lisbonBounds,
       maxBoundsViscosity: 0.8,
       minZoom: 11,
       maxZoom: 18
-    }).setView(lisbonCenter, 12);
+    }).setView([38.7369, -9.1426], 12);
 
     L.tileLayer(
       `https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png?key=cb1_408g_1_95cc032f14a947b30ef77c0a`,
-      {
-        attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
-        maxZoom: 20
-      }
+      { attribution: '&copy; OpenStreetMap contributors &copy; CARTO', maxZoom: 20 }
     ).addTo(map);
 
-    // Dynamic Leaflet Layer Groups
     let canvasLayer = null;
     let eventMarkersGroup = L.layerGroup().addTo(map);
 
-    // Application State
     let currentDailyData = null;
     let isPlaying = false;
     let playInterval = null;
-    let activeMode = 'risk'; // 'risk', 'temp', 'noise', 'pm25', 'uv'
+    let activeMode = 'risk';
 
-    // Risk Thresholds State
     let thresholds = {
       temp:  { safe: 22, danger: 30 },
       noise: { safe: 55, danger: 75 },
@@ -342,22 +329,61 @@
       uv:    { safe: 3,  danger: 8 }
     };
 
-    // Health Persona Weights
     const weights = {
       elderly: { temp: 0.50, pm25: 0.15, noise: 0.15, uv: 0.20 },
       asthma:  { temp: 0.20, pm25: 0.60, noise: 0.10, uv: 0.10 },
       general: { temp: 0.25, pm25: 0.25, noise: 0.25, uv: 0.25 }
     };
 
+    // Auto-discover and populate available date JSON files
+    async function discoverAndPopulateDates() {
+      const select = document.getElementById('date');
+      select.innerHTML = '';
+
+      // Generate candidate dates window around current period
+      const candidates = [];
+      const start = new Date("2026-09-25");
+      for (let i = 0; i < 15; i++) {
+        const d = new Date(start);
+        d.setDate(d.getDate() + i);
+        candidates.push(d.toISOString().split('T')[0]);
+      }
+
+      const validDates = [];
+      for (const dateStr of candidates) {
+        try {
+          const res = await fetch(`./www/data/${dateStr}.json`, { method: 'HEAD' });
+          if (res.ok) validDates.push(dateStr);
+        } catch (e) {}
+      }
+
+      // Fallback list if HEAD probing is blocked by local file server
+      const dateList = validDates.length > 0 ? validDates : [
+        '2026-09-27', '2026-09-28', '2026-09-29', '2026-09-30', 
+        '2026-10-01', '2026-10-02', '2026-10-03'
+      ];
+
+      dateList.forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d;
+        opt.innerText = d;
+        select.appendChild(opt);
+      });
+
+      loadDailyData();
+    }
+
     // Load Daily JSON File
     async function loadDailyData() {
       const date = document.getElementById('date').value;
+      if (!date) return;
+
       try {
         const res = await fetch(`./www/data/${date}.json`);
         currentDailyData = await res.json();
         updateFrame();
       } catch (e) {
-        console.error("Could not load daily JSON data file:", e);
+        console.error(`Could not load JSON data for date ${date}:`, e);
       } 
     }
 
@@ -392,29 +418,33 @@
       renderActiveEventMarkers(hour);
     }
 
-    // Risk normalization [0.0 = Safe, 1.0 = Danger]
     function calcRisk(val, safe, danger) {
+      if (val === undefined || val === null) return 0.0;
       if (val <= safe) return 0.0;
       if (val >= danger) return 1.0;
       return (val - safe) / (danger - safe);
     }
 
-    // 2. RENDER ENVIRONMENTAL RISK OVERLAY
     function renderFrame() {
       if (!currentDailyData) return;
 
       const hour = document.getElementById('hour').value;
       const persona = document.getElementById('persona').value;
       const w = weights[persona];
-      const hourData = currentDailyData.hours[hour];
+      
+      const hourKey = String(hour);
+      const hourData = (currentDailyData.hours && currentDailyData.hours[hourKey]) 
+                    || (currentDailyData.hours && currentDailyData.hours[hour]);
+
+      if (!hourData || !hourData.temp) return;
       
       const N = hourData.temp.length;
       const displayValues = new Float32Array(N);
 
       for (let i = 0; i < N; i++) {
         const rTemp  = calcRisk(hourData.temp[i], thresholds.temp.safe, thresholds.temp.danger);
-        const rNoise = calcRisk(hourData.noise[i], thresholds.noise.safe, thresholds.noise.danger);
-        const rPM25  = calcRisk(hourData.pm25[i], thresholds.pm25.safe, thresholds.pm25.danger);
+        const rNoise = calcRisk(hourData.noise ? hourData.noise[i] : 0, thresholds.noise.safe, thresholds.noise.danger);
+        const rPM25  = calcRisk(hourData.pm25 ? hourData.pm25[i] : 0, thresholds.pm25.safe, thresholds.pm25.danger);
         const rUV    = calcRisk(hourData.uv ? hourData.uv[i] : 0, thresholds.uv.safe, thresholds.uv.danger);
 
         if (activeMode === 'risk') {
@@ -435,8 +465,13 @@
 
     function renderCanvasOverlay(bbox, rows, cols, riskArray) {
       if (canvasLayer) map.removeLayer(canvasLayer);
+      if (!bbox) return;
 
-      const bounds = [[bbox[1], bbox[0]], [bbox[3], bbox[2]]];
+      // Convert EPSG:3763 bounding box to WGS84 LatLng bounds
+      const sw = toLatLng([bbox[0], bbox[1]]);
+      const ne = toLatLng([bbox[2], bbox[3]]);
+      const bounds = [sw, ne];
+
       const canvas = document.createElement('canvas');
       canvas.width = cols; 
       canvas.height = rows;
@@ -459,44 +494,44 @@
         imgData.data[idx]     = r;
         imgData.data[idx + 1] = g;
         imgData.data[idx + 2] = b;
-        imgData.data[idx + 3] = score > 0.05 ? 150 : 0; // Opacity
+        imgData.data[idx + 3] = score > 0.02 ? 150 : 0; // Transparent for background zero
       }
 
       ctx.putImageData(imgData, 0, 0);
       canvasLayer = L.imageOverlay(canvas.toDataURL(), bounds, { opacity: 0.75 }).addTo(map);
     }
 
-    // 3. RENDER ACTIVE DYNAMIC EVENTS (Cooling Centers, Fires, Music Events)
+    // Render Event Markers and Cool Zones
     function renderActiveEventMarkers(hour) {
       eventMarkersGroup.clearLayers();
       if (!currentDailyData) return;
 
-      // Extract events from hour object or daily metadata
-      const hourObj = currentDailyData.hours[hour];
-      const events = hourObj.events || currentDailyData.active_events || [];
+      const hourKey = String(hour);
+      const hourData = (currentDailyData.hours && currentDailyData.hours[hourKey]) 
+                    || (currentDailyData.hours && currentDailyData.hours[hour]) 
+                    || {};
+
+      const events = hourData.events || hourData.active_events || currentDailyData.active_events || {};
 
       Object.keys(events).forEach(key => {
         const ev = events[key];
         if (!ev.coords) return;
 
-        // Determine lat/lng from coordinates
-        let lat, lng;
+        let latLng = null;
         if (Array.isArray(ev.coords) && typeof ev.coords[0] === 'number') {
-          lat = ev.coords[0];
-          lng = ev.coords[1];
+          latLng = toLatLng(ev.coords);
         } else if (Array.isArray(ev.coords) && Array.isArray(ev.coords[0])) {
-          // Polygon centroid fallback
-          lat = ev.coords[0][0];
-          lng = ev.coords[0][1];
+          const first = ev.coords[0];
+          latLng = typeof first[0] === 'number' ? toLatLng(first) : toLatLng(first[0]);
         }
 
-        if (!lat || !lng) return;
+        if (!latLng) return;
 
         const isMitigation = ev.type === 'mitigation' || ev.effect_type === 'mitigation';
         const color = isMitigation ? '#007bff' : '#e74c3c';
         const icon = isMitigation ? '❄️' : '⚠️';
 
-        const marker = L.circleMarker([lat, lng], {
+        const marker = L.circleMarker(latLng, {
           radius: 9,
           fillColor: color,
           color: '#ffffff',
@@ -507,18 +542,17 @@
 
         marker.bindPopup(`
           <div style="font-size:0.85rem; font-family:sans-serif;">
-            <strong>${icon} ${ev.label || ev.id}</strong><br/>
-            <span style="color:#666;">Type: ${isMitigation ? 'Cooling / Mitigation Center' : 'Hazard Event'}</span><br/>
-            <span style="color:#666;">Affected Hazards: ${ev.risks}</span>
+            <strong>${icon} ${ev.label || ev.id || key}</strong><br/>
+            <span style="color:#666;">Type: ${isMitigation ? 'Cooling Center / Mitigation' : 'Hazard Event'}</span><br/>
+            <span style="color:#666;">Hazards: ${ev.risks || 'Heat'}</span>
           </div>
         `);
 
-        marker.bindTooltip(`${icon} ${ev.label}`, { permanent: false, direction: 'top' });
+        marker.bindTooltip(`${icon} ${ev.label || ev.id || key}`, { permanent: false, direction: 'top' });
         eventMarkersGroup.addLayer(marker);
       });
     }
 
-    // 4. AUTOMATIC 24-HOUR LOOPING ANIMATION
     function togglePlay() {
       const btn = document.getElementById('playBtn');
       const slider = document.getElementById('hour');
@@ -532,15 +566,15 @@
         btn.innerText = "⏸ Pause";
         playInterval = setInterval(() => {
           let h = parseInt(slider.value) + 1;
-          if (h > 23) h = 0; // Infinite seamless loop
+          if (h > 23) h = 0;
           slider.value = h;
           updateFrame();
-        }, 400); // 400ms per hour
+        }, 400);
       }
     }
 
-    // Initial Execution
-    loadDailyData();
+    // Initialize date discovery on startup
+    discoverAndPopulateDates();
   </script>
 </body>
 </html>
