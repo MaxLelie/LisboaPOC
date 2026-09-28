@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   
-  <!-- Proj4js for EPSG:3763 (Lisbon Meters) -> WGS84 Lat/Lng Reprojection -->
+  <!-- Proj4js for EPSG:3763 (Lisbon Local Meters) -> WGS84 Lat/Lng -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.9.0/proj4.js"></script>
 
   <style>
@@ -167,6 +167,17 @@
     }
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
 
+    /* Diagnostic Status Footer */
+    #status-bar {
+      font-size: 0.72rem;
+      color: #64748b;
+      background: #f1f5f9;
+      padding: 6px 10px;
+      border-radius: 6px;
+      margin-top: 8px;
+      word-break: break-all;
+    }
+
     @media (min-width: 768px) {
       #main-container { flex-direction: row; }
       #map-wrapper { flex: 1; height: 100%; }
@@ -277,37 +288,18 @@
           </div>
         </div>
       </div>
+
+      <!-- Diagnostic Status Bar -->
+      <div id="status-bar">Status: Initializing...</div>
     </div>
   </div>
 
   <script>
-    // Define EPSG:3763 (PT-TM06 / ETRS89 Lisbon local meter projection)
+    // Register EPSG:3763 (PT-TM06 / ETRS89 Lisbon local meter projection)
     proj4.defs("EPSG:3763", "+proj=tmerc +lat_0=39.66825833333333 +lon_0=-8.133108333333333 +k=1 +x_0=0 +y_0=0 +ellps=GRS80 +units=m +no_defs");
 
-    // Coordinate Translation Helper (Projected Meters -> WGS84 [lat, lng])
-    function toLatLng(coord) {
-      if (!coord || coord.length < 2) return null;
-      let x = coord[0], y = coord[1];
-      
-      // If coordinates are in meters (|coord| > 180), convert EPSG:3763 -> EPSG:4326
-      if (Math.abs(x) > 180 || Math.abs(y) > 180) {
-        const lonlat = proj4("EPSG:3763", "EPSG:4326", [x, y]);
-        return [lonlat[1], lonlat[0]]; // Return [lat, lng] for Leaflet
-      }
-      
-      // Already WGS84: ensure [lat, lng] ordering
-      if (x < 0 && y > 0) return [y, x];
-      return [x, y];
-    }
-
-    // Initialize Bounded Leaflet Map
-    const lisbonBounds = L.latLngBounds([[38.58, -9.35], [38.88, -8.95]]);
-    const map = L.map('map', {
-      maxBounds: lisbonBounds,
-      maxBoundsViscosity: 0.8,
-      minZoom: 11,
-      maxZoom: 18
-    }).setView([38.7369, -9.1426], 12);
+    // Initialize Map
+    const map = L.map('map').setView([38.7369, -9.1426], 12);
 
     L.tileLayer(
       `https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png?key=cb1_408g_1_95cc032f14a947b30ef77c0a`,
@@ -335,33 +327,91 @@
       general: { temp: 0.25, pm25: 0.25, noise: 0.25, uv: 0.25 }
     };
 
-    // Auto-discover and populate available date JSON files
+    function updateStatus(msg) {
+      document.getElementById('status-bar').innerText = msg;
+    }
+
+    // Helper 1: Universal Array Field Resolver (Flattens matrices or picks key variants)
+    function getArrayField(obj, possibleKeys) {
+      if (!obj) return null;
+      for (let key of possibleKeys) {
+        if (obj[key] !== undefined && obj[key] !== null) {
+          let val = obj[key];
+          if (Array.isArray(val)) {
+            return Array.isArray(val[0]) ? val.flat() : val;
+          }
+        }
+      }
+      return null;
+    }
+
+    // Helper 2: Universal Hour Object Resolver
+    function getHourData(data, hourVal) {
+      if (!data) return null;
+      let hObj = null;
+      if (data.hours) {
+        hObj = data.hours[hourVal] || data.hours[String(hourVal)] || data.hours[parseInt(hourVal)];
+      } else if (data.data) {
+        hObj = data.data[hourVal] || data.data[String(hourVal)];
+      } else {
+        hObj = data[hourVal] || data[String(hourVal)];
+      }
+      return hObj;
+    }
+
+    // Helper 3: Universal Bounding Box Resolver & Reprojection
+    function parseBounds(bbox) {
+      if (!bbox) return null;
+      let a, b, c, d;
+      if (Array.isArray(bbox)) {
+        [a, b, c, d] = bbox;
+      } else if (typeof bbox === 'object') {
+        a = bbox.xmin || bbox.left || bbox.minlon;
+        b = bbox.ymin || bbox.bottom || bbox.minlat;
+        c = bbox.xmax || bbox.right || bbox.maxlon;
+        d = bbox.ymax || bbox.top || bbox.maxlat;
+      }
+
+      if (a === undefined) return null;
+
+      // Case 1: Projected meters (e.g. EPSG:3763) -> Reproject to WGS84
+      if (Math.abs(a) > 180 || Math.abs(b) > 180) {
+        const p1 = proj4("EPSG:3763", "EPSG:4326", [a, b]); // [lon, lat]
+        const p2 = proj4("EPSG:3763", "EPSG:4326", [c, d]); // [lon, lat]
+        return [[Math.min(p1[1], p2[1]), Math.min(p1[0], p2[0])], 
+                [Math.max(p1[1], p2[1]), Math.max(p1[0], p2[0])]];
+      }
+
+      // Case 2: WGS84 Lat/Lng
+      const lats = [a, b, c, d].filter(v => v > 0 && v < 90);
+      const lons = [a, b, c, d].filter(v => v < 0 && v > -180);
+
+      if (lats.length >= 2 && lons.length >= 2) {
+        return [[Math.min(...lats), Math.min(...lons)], [Math.max(...lats), Math.max(...lons)]];
+      }
+
+      return [[Math.min(a, c), Math.min(b, d)], [Math.max(a, c), Math.max(b, d)]];
+    }
+
+    // Auto-discover available date JSON files
     async function discoverAndPopulateDates() {
       const select = document.getElementById('date');
       select.innerHTML = '';
 
-      // Generate candidate dates window around current period
-      const candidates = [];
-      const start = new Date("2026-09-25");
-      for (let i = 0; i < 15; i++) {
-        const d = new Date(start);
-        d.setDate(d.getDate() + i);
-        candidates.push(d.toISOString().split('T')[0]);
-      }
+      const candidates = [
+        '2026-09-27', '2026-09-28', '2026-09-29', '2026-09-30',
+        '2026-10-01', '2026-10-02', '2026-10-03', '2026-10-04'
+      ];
 
       const validDates = [];
       for (const dateStr of candidates) {
         try {
-          const res = await fetch(`./www/data/${dateStr}.json`, { method: 'HEAD' });
+          const res = await fetch(`./www/data/${dateStr}.json`);
           if (res.ok) validDates.push(dateStr);
         } catch (e) {}
       }
 
-      // Fallback list if HEAD probing is blocked by local file server
-      const dateList = validDates.length > 0 ? validDates : [
-        '2026-09-27', '2026-09-28', '2026-09-29', '2026-09-30', 
-        '2026-10-01', '2026-10-02', '2026-10-03'
-      ];
+      const dateList = validDates.length > 0 ? validDates : ['2026-09-28', '2026-09-29', '2026-09-30'];
 
       dateList.forEach(d => {
         const opt = document.createElement('option');
@@ -373,17 +423,20 @@
       loadDailyData();
     }
 
-    // Load Daily JSON File
+    // Load Daily JSON
     async function loadDailyData() {
       const date = document.getElementById('date').value;
       if (!date) return;
 
       try {
+        updateStatus(`Loading ./www/data/${date}.json ...`);
         const res = await fetch(`./www/data/${date}.json`);
         currentDailyData = await res.json();
+        
         updateFrame();
       } catch (e) {
-        console.error(`Could not load JSON data for date ${date}:`, e);
+        updateStatus(`Error loading ${date}.json: ${e.message}`);
+        console.error(e);
       } 
     }
 
@@ -419,12 +472,13 @@
     }
 
     function calcRisk(val, safe, danger) {
-      if (val === undefined || val === null) return 0.0;
+      if (val === undefined || val === null || isNaN(val)) return 0.0;
       if (val <= safe) return 0.0;
       if (val >= danger) return 1.0;
       return (val - safe) / (danger - safe);
     }
 
+    // Render Canvas Overlay
     function renderFrame() {
       if (!currentDailyData) return;
 
@@ -432,20 +486,32 @@
       const persona = document.getElementById('persona').value;
       const w = weights[persona];
       
-      const hourKey = String(hour);
-      const hourData = (currentDailyData.hours && currentDailyData.hours[hourKey]) 
-                    || (currentDailyData.hours && currentDailyData.hours[hour]);
+      const hourData = getHourData(currentDailyData, hour);
 
-      if (!hourData || !hourData.temp) return;
-      
-      const N = hourData.temp.length;
+      if (!hourData) {
+        updateStatus(`No data found for hour ${hour}`);
+        return;
+      }
+
+      // Extract hazard arrays
+      const arrTemp  = getArrayField(hourData, ['temp', 'temperature', 't', 't2m']);
+      const arrNoise = getArrayField(hourData, ['noise', 'noise_db', 'n', 'db']);
+      const arrPM25  = getArrayField(hourData, ['pm25', 'pm2_5', 'pm', 'p']);
+      const arrUV    = getArrayField(hourData, ['uv', 'uv_index', 'uvi', 'u']);
+
+      if (!arrTemp) {
+        updateStatus(`Hour ${hour}: Missing temp array in JSON`);
+        return;
+      }
+
+      const N = arrTemp.length;
       const displayValues = new Float32Array(N);
 
       for (let i = 0; i < N; i++) {
-        const rTemp  = calcRisk(hourData.temp[i], thresholds.temp.safe, thresholds.temp.danger);
-        const rNoise = calcRisk(hourData.noise ? hourData.noise[i] : 0, thresholds.noise.safe, thresholds.noise.danger);
-        const rPM25  = calcRisk(hourData.pm25 ? hourData.pm25[i] : 0, thresholds.pm25.safe, thresholds.pm25.danger);
-        const rUV    = calcRisk(hourData.uv ? hourData.uv[i] : 0, thresholds.uv.safe, thresholds.uv.danger);
+        const rTemp  = calcRisk(arrTemp[i], thresholds.temp.safe, thresholds.temp.danger);
+        const rNoise = calcRisk(arrNoise ? arrNoise[i] : 0, thresholds.noise.safe, thresholds.noise.danger);
+        const rPM25  = calcRisk(arrPM25 ? arrPM25[i] : 0, thresholds.pm25.safe, thresholds.pm25.danger);
+        const rUV    = calcRisk(arrUV ? arrUV[i] : 0, thresholds.uv.safe, thresholds.uv.danger);
 
         if (activeMode === 'risk') {
           displayValues[i] = (rTemp * w.temp) + (rPM25 * w.pm25) + (rNoise * w.noise) + (rUV * w.uv);
@@ -460,17 +526,31 @@
         }
       }
 
-      renderCanvasOverlay(currentDailyData.bbox, currentDailyData.rows, currentDailyData.cols, displayValues);
+      renderCanvasOverlay(currentDailyData, displayValues);
     }
 
-    function renderCanvasOverlay(bbox, rows, cols, riskArray) {
+    function renderCanvasOverlay(dailyObj, riskArray) {
       if (canvasLayer) map.removeLayer(canvasLayer);
-      if (!bbox) return;
 
-      // Convert EPSG:3763 bounding box to WGS84 LatLng bounds
-      const sw = toLatLng([bbox[0], bbox[1]]);
-      const ne = toLatLng([bbox[2], bbox[3]]);
-      const bounds = [sw, ne];
+      const bounds = parseBounds(dailyObj.bbox);
+      if (!bounds) {
+        updateStatus(`Invalid bbox coordinate bounds in JSON`);
+        return;
+      }
+
+      // Automatically fit map view to bounds on initial load
+      if (!window.mapFitted) {
+        map.fitBounds(bounds);
+        window.mapFitted = true;
+      }
+
+      let rows = dailyObj.rows || dailyObj.nrows || dailyObj.height;
+      let cols = dailyObj.cols || dailyObj.ncols || dailyObj.width;
+
+      if (!rows || !cols) {
+        cols = Math.round(Math.sqrt(riskArray.length));
+        rows = Math.round(riskArray.length / cols);
+      }
 
       const canvas = document.createElement('canvas');
       canvas.width = cols; 
@@ -478,8 +558,11 @@
       const ctx = canvas.getContext('2d');
       const imgData = ctx.createImageData(cols, rows);
 
+      let maxVal = 0;
+
       for (let i = 0; i < riskArray.length; i++) {
         const score = riskArray[i];
+        if (score > maxVal) maxVal = score;
         const idx = i * 4;
 
         let r = 0, g = 0, b = 0;
@@ -494,38 +577,36 @@
         imgData.data[idx]     = r;
         imgData.data[idx + 1] = g;
         imgData.data[idx + 2] = b;
-        imgData.data[idx + 3] = score > 0.02 ? 150 : 0; // Transparent for background zero
+        imgData.data[idx + 3] = score > 0.01 ? 160 : 0; // Opacity
       }
 
       ctx.putImageData(imgData, 0, 0);
-      canvasLayer = L.imageOverlay(canvas.toDataURL(), bounds, { opacity: 0.75 }).addTo(map);
+      canvasLayer = L.imageOverlay(canvas.toDataURL(), bounds, { opacity: 0.8 }).addTo(map);
+
+      updateStatus(`Loaded OK | Grid: ${cols}x${rows} | Max Score: ${maxVal.toFixed(2)}`);
     }
 
-    // Render Event Markers and Cool Zones
+    // Render Dynamic Markers
     function renderActiveEventMarkers(hour) {
       eventMarkersGroup.clearLayers();
       if (!currentDailyData) return;
 
-      const hourKey = String(hour);
-      const hourData = (currentDailyData.hours && currentDailyData.hours[hourKey]) 
-                    || (currentDailyData.hours && currentDailyData.hours[hour]) 
-                    || {};
-
+      const hourData = getHourData(currentDailyData, hour) || {};
       const events = hourData.events || hourData.active_events || currentDailyData.active_events || {};
 
       Object.keys(events).forEach(key => {
         const ev = events[key];
         if (!ev.coords) return;
 
-        let latLng = null;
-        if (Array.isArray(ev.coords) && typeof ev.coords[0] === 'number') {
-          latLng = toLatLng(ev.coords);
-        } else if (Array.isArray(ev.coords) && Array.isArray(ev.coords[0])) {
-          const first = ev.coords[0];
-          latLng = typeof first[0] === 'number' ? toLatLng(first) : toLatLng(first[0]);
+        let rawCoord = ev.coords;
+        if (Array.isArray(rawCoord) && Array.isArray(rawCoord[0])) {
+          rawCoord = rawCoord[0]; // Take centroid/first point if polygon
         }
 
-        if (!latLng) return;
+        const pointBounds = parseBounds([rawCoord[0], rawCoord[1], rawCoord[0], rawCoord[1]]);
+        if (!pointBounds) return;
+
+        const latLng = pointBounds[0];
 
         const isMitigation = ev.type === 'mitigation' || ev.effect_type === 'mitigation';
         const color = isMitigation ? '#007bff' : '#e74c3c';
@@ -573,7 +654,7 @@
       }
     }
 
-    // Initialize date discovery on startup
+    // Startup
     discoverAndPopulateDates();
   </script>
 </body>
