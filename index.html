@@ -2,187 +2,320 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EUTOPIA Lisboa Microclimate Risk</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>EUTOPIA Lisboa Microclimate & Health Risk Monitor</title>
+  
+  <!-- Leaflet CSS & JS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
   <style>
+    :root {
+      --primary: #007bff;
+      --primary-dark: #0056b3;
+      --bg: #f4f6f9;
+      --card-bg: #ffffff;
+      --text: #212529;
+      --border: #dee2e6;
+    }
+
     * { box-sizing: border-box; }
-    body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f4f6f9; }
-    
-    /* Top Map Mode Switcher */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Header */
+    header {
+      background: #1e293b;
+      color: white;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      z-index: 1100;
+    }
+    header h1 { margin: 0; font-size: 1.1rem; font-weight: 700; letter-spacing: 0.5px; }
+    header span { font-size: 0.75rem; color: #94a3b8; }
+
+    /* Main Responsive Container */
+    #main-container {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Map Box Wrapper */
+    #map-wrapper {
+      position: relative;
+      flex: 1;
+      min-height: 45vh;
+      width: 100%;
+      background: #e5e7eb;
+    }
+
+    #map {
+      height: 100%;
+      width: 100%;
+    }
+
+    /* Top Mode Switcher Overlay */
     #top-bar {
       position: absolute;
-      top: 10px;
+      top: 12px;
       left: 50%;
       transform: translateX(-50%);
       z-index: 1000;
       background: rgba(255, 255, 255, 0.95);
-      padding: 6px 12px;
-      border-radius: 20px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+      backdrop-filter: blur(4px);
+      padding: 4px 6px;
+      border-radius: 24px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.18);
       display: flex;
-      gap: 6px;
+      gap: 4px;
+      max-width: 92vw;
+      overflow-x: auto;
     }
     .mode-btn {
       border: none;
-      background: #e9ecef;
-      color: #495057;
+      background: transparent;
+      color: #4b5563;
       padding: 6px 12px;
-      border-radius: 14px;
-      font-size: 0.8rem;
+      border-radius: 18px;
+      font-size: 0.78rem;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.2s;
+      white-space: nowrap;
+      transition: all 0.2s ease;
     }
     .mode-btn.active {
-      background: #007bff;
+      background: var(--primary);
       color: white;
+      box-shadow: 0 2px 6px rgba(0, 123, 255, 0.3);
     }
 
-    #map { height: 55vh; width: 100vw; }
-    
+    /* Bottom Control Panel */
     #controls {
-      padding: 15px;
-      background: white;
-      height: 45vh;
+      background: var(--card-bg);
+      padding: 14px 16px;
       overflow-y: auto;
-      border-top-left-radius: 16px;
-      border-top-right-radius: 16px;
-      box-shadow: 0 -4px 15px rgba(0,0,0,0.08);
+      border-top-left-radius: 18px;
+      border-top-right-radius: 18px;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+      z-index: 1005;
+      max-height: 45vh;
     }
-    
-    .row { display: flex; gap: 10px; margin-bottom: 12px; align-items: center; }
-    .btn { background: #007bff; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-    .btn-secondary { background: #6c757d; }
-    
-    label { font-weight: bold; font-size: 0.85rem; color: #333; display: block; margin-bottom: 4px; }
-    select, input[type="number"] { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc; font-size: 0.9rem; }
-    
-    /* Settings Drawer */
-    #settings-panel {
-      display: none;
-      background: #f8f9fa;
-      padding: 12px;
+
+    .row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
+    .flex-1 { flex: 1; }
+
+    .btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 9px 14px;
       border-radius: 8px;
-      margin-top: 10px;
-      border: 1px solid #dee2e6;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+      min-height: 38px;
     }
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
-    
-    /* Color Legend */
+    .btn:hover { background: var(--primary-dark); }
+    .btn-secondary { background: #64748b; }
+    .btn-secondary:hover { background: #475569; }
+
+    label { font-weight: 600; font-size: 0.8rem; color: #334155; display: block; margin-bottom: 3px; }
+    select, input[type="number"] {
+      width: 100%;
+      padding: 7px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      font-size: 0.85rem;
+      background: #fff;
+    }
+
+    /* Hazard Legend */
     #legend {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      margin: 10px 0;
-      padding: 8px 12px;
-      background: #f8f9fa;
-      border-radius: 6px;
+      justify-content: space-around;
+      margin: 8px 0 12px 0;
+      padding: 8px 10px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
       font-size: 0.75rem;
-      font-weight: bold;
+      font-weight: 600;
     }
-    .legend-box { width: 14px; height: 14px; border-radius: 3px; display: inline-block; vertical-align: middle; margin-right: 4px; }
+    .legend-item { display: flex; align-items: center; gap: 5px; }
+    .legend-box { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+
+    /* Settings Panel */
+    #settings-panel {
+      display: none;
+      background: #f8fafc;
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 8px;
+      border: 1px solid #e2e8f0;
+    }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+
+    /* Desktop Responsive Layout */
+    @media (min-width: 768px) {
+      #main-container { flex-direction: row; }
+      #map-wrapper { flex: 1; height: 100%; }
+      #controls {
+        width: 380px;
+        max-height: 100%;
+        border-radius: 0;
+        box-shadow: -4px 0 15px rgba(0,0,0,0.08);
+      }
+    }
   </style>
 </head>
 <body>
 
-  <!-- Top Map Layer Switcher -->
-  <div id="top-bar">
-    <button class="mode-btn active" onclick="setMapLayer('risk')">Risk Index</button>
-    <button class="mode-btn" onclick="setMapLayer('temp')">Temp (°C)</button>
-    <button class="mode-btn" onclick="setMapLayer('noise')">Noise (dB)</button>
-    <button class="mode-btn" onclick="setMapLayer('pm25')">PM2.5</button>
-  </div>
+  <header>
+    <div>
+      <h1>EUTOPIA Lisboa</h1>
+      <span>Microclimate Environmental & Health Risk</span>
+    </div>
+  </header>
 
-  <div id="map"></div>
+  <div id="main-container">
+    
+    <!-- Map Container -->
+    <div id="map-wrapper">
+      <div id="top-bar">
+        <button class="mode-btn active" onclick="setMapLayer('risk', this)">Risk Index</button>
+        <button class="mode-btn" onclick="setMapLayer('temp', this)">Temp (°C)</button>
+        <button class="mode-btn" onclick="setMapLayer('noise', this)">Noise (dB)</button>
+        <button class="mode-btn" onclick="setMapLayer('pm25', this)">PM2.5</button>
+        <button class="mode-btn" onclick="setMapLayer('uv', this)">UV Index</button>
+      </div>
+      <div id="map"></div>
+    </div>
 
-  <div id="controls">
-    <div class="row">
-      <button id="playBtn" class="btn" onclick="togglePlay()">▶ Play 24h</button>
-      <div style="flex-grow: 1;">
-        <label for="date">Date</label>
-        <select id="date" onchange="loadDailyData()">
-          <option value="2026-10-26">Oct 26, 2026</option>
-          <option value="2026-10-27">Oct 27, 2026</option>
-          <option value="2026-10-28">Oct 28, 2026</option>
-          <option value="2026-10-29">Oct 29, 2026</option>
-          <option value="2026-10-30">Oct 30, 2026</option>
+    <!-- Control Panel -->
+    <div id="controls">
+      <div class="row">
+        <button id="playBtn" class="btn" onclick="togglePlay()">▶ Play 24h</button>
+        <div class="flex-1">
+          <label for="date">Select Date</label>
+          <select id="date" onchange="loadDailyData()">
+            <option value="2026-09-28">Sep 28, 2026</option>
+            <option value="2026-09-29">Sep 29, 2026</option>
+            <option value="2026-09-30">Sep 30, 2026</option>
+            <option value="2026-10-01">Oct 01, 2026</option>
+            <option value="2026-10-02">Oct 02, 2026</option>
+          </select>
+        </div>
+        <button class="btn btn-secondary" onclick="toggleSettings()">⚙ Limits</button>
+      </div>
+
+      <div style="margin-bottom: 10px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <label for="hour">Time of Day</label>
+          <span id="hourVal" style="color: var(--primary); font-weight: bold; font-size: 0.9rem;">15:00</span>
+        </div>
+        <input type="range" id="hour" min="0" max="23" value="15" style="width:100%; margin-top:4px;" oninput="updateFrame()">
+      </div>
+
+      <!-- Color Legend -->
+      <div id="legend">
+        <div class="legend-item"><span class="legend-box" style="background:#2ecc71;"></span> Safe</div>
+        <div class="legend-item"><span class="legend-box" style="background:#f39c12;"></span> Moderate</div>
+        <div class="legend-item"><span class="legend-box" style="background:#e74c3c;"></span> High Risk</div>
+      </div>
+
+      <div>
+        <label for="persona">Vulnerability Profile</label>
+        <select id="persona" onchange="renderFrame()">
+          <option value="elderly">Senior / Cardiovascular (Heat 50%, UV 20%)</option>
+          <option value="asthma">Asthma / Respiratory (PM2.5 60%, Temp 20%)</option>
+          <option value="general">General Public (Balanced Weights)</option>
         </select>
       </div>
-      <button class="btn btn-secondary" onclick="toggleSettings()">⚙ Limits</button>
-    </div>
 
-    <div style="margin-bottom: 12px;">
-      <label for="hour">Hour of Day: <span id="hourVal" style="color: #007bff;">15:00</span></label>
-      <input type="range" id="hour" min="0" max="23" value="15" style="width:100%;" oninput="updateFrame()">
-    </div>
-
-    <!-- Legend -->
-    <div id="legend">
-      <span><span class="legend-box" style="background:#2ecc71;"></span> Safe</span>
-      <span><span class="legend-box" style="background:#f39c12;"></span> Moderate</span>
-      <span><span class="legend-box" style="background:#e74c3c;"></span> High Risk / Avoid</span>
-    </div>
-
-    <div>
-      <label for="persona">User Health Profile</label>
-      <select id="persona" onchange="renderFrame()">
-        <option value="elderly">Senior / Cardiovascular (Heat Weight 60%)</option>
-        <option value="asthma">Asthma / Respiratory (PM2.5 Weight 70%)</option>
-        <option value="general">General Public (Equal Weighting)</option>
-      </select>
-    </div>
-
-    <!-- Collapsible Settings Panel for Thresholds -->
-    <div id="settings-panel">
-      <label style="margin-bottom: 8px; color: #007bff;">Hazard Risk Thresholds</label>
-      
-      <div class="grid-2">
-        <div>
-          <label for="t_safe">Temp Safe (°C)</label>
-          <input type="number" id="t_safe" value="22" onchange="updateSettings()">
+      <!-- Threshold Settings Drawer -->
+      <div id="settings-panel">
+        <label style="color: var(--primary); margin-bottom: 6px;">Hazard Thresholds (Safe → Danger)</label>
+        
+        <div class="grid-2">
+          <div>
+            <label for="t_safe">Temp Safe (°C)</label>
+            <input type="number" id="t_safe" value="22" onchange="updateSettings()">
+          </div>
+          <div>
+            <label for="t_danger">Temp Danger (°C)</label>
+            <input type="number" id="t_danger" value="30" onchange="updateSettings()">
+          </div>
         </div>
-        <div>
-          <label for="t_danger">Temp Danger (°C)</label>
-          <input type="number" id="t_danger" value="28" onchange="updateSettings()">
-        </div>
-      </div>
 
-      <div class="grid-2">
-        <div>
-          <label for="n_safe">Noise Safe (dB)</label>
-          <input type="number" id="n_safe" value="55" onchange="updateSettings()">
+        <div class="grid-2">
+          <div>
+            <label for="n_safe">Noise Safe (dB)</label>
+            <input type="number" id="n_safe" value="55" onchange="updateSettings()">
+          </div>
+          <div>
+            <label for="n_danger">Noise Danger (dB)</label>
+            <input type="number" id="n_danger" value="75" onchange="updateSettings()">
+          </div>
         </div>
-        <div>
-          <label for="n_danger">Noise Danger (dB)</label>
-          <input type="number" id="n_danger" value="70" onchange="updateSettings()">
-        </div>
-      </div>
 
-      <div class="grid-2">
-        <div>
-          <label for="p_safe">PM2.5 Safe (µg/m³)</label>
-          <input type="number" id="p_safe" value="15" onchange="updateSettings()">
+        <div class="grid-2">
+          <div>
+            <label for="p_safe">PM2.5 Safe (µg/m³)</label>
+            <input type="number" id="p_safe" value="12" onchange="updateSettings()">
+          </div>
+          <div>
+            <label for="p_danger">PM2.5 Danger (µg/m³)</label>
+            <input type="number" id="p_danger" value="35" onchange="updateSettings()">
+          </div>
         </div>
-        <div>
-          <label for="p_danger">PM2.5 Danger (µg/m³)</label>
-          <input type="number" id="p_danger" value="35" onchange="updateSettings()">
+
+        <div class="grid-2">
+          <div>
+            <label for="u_safe">UV Safe Index</label>
+            <input type="number" id="u_safe" value="3" onchange="updateSettings()">
+          </div>
+          <div>
+            <label for="u_danger">UV Danger Index</label>
+            <input type="number" id="u_danger" value="8" onchange="updateSettings()">
+          </div>
         </div>
       </div>
     </div>
   </div>
 
   <script>
-    // Initialize Leaflet Map with CartoDB Positron base layer (No watermark)
-    const map = L.map('map').setView([38.73, -9.15], 12);
-    //L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-    //  attribution: '&copy; OpenStreetMap &copy; CARTO',
-    //  subdomains: 'abcd',
-    //  maxZoom: 19
-    //}).addTo(map);
+    // 1. BOUNDED LISBON MAP SETUP
+    // Restrict panning and set min/max zoom limits around Greater Lisbon
+    const lisbonCenter = [38.7369, -9.1426];
+    const lisbonBounds = L.latLngBounds([[38.58, -9.35], [38.88, -8.95]]);
 
-    const CARTO_KEY = 'cb1_408g_1_95cc032f14a947b30ef77c0a';
+    const map = L.map('map', {
+      maxBounds: lisbonBounds,
+      maxBoundsViscosity: 0.8,
+      minZoom: 11,
+      maxZoom: 18
+    }).setView(lisbonCenter, 12);
+
     L.tileLayer(
       `https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png?key=cb1_408g_1_95cc032f14a947b30ef77c0a`,
       {
@@ -191,44 +324,47 @@
       }
     ).addTo(map);
 
-    let currentDailyData = null;
+    // Dynamic Leaflet Layer Groups
     let canvasLayer = null;
+    let eventMarkersGroup = L.layerGroup().addTo(map);
+
+    // Application State
+    let currentDailyData = null;
     let isPlaying = false;
     let playInterval = null;
-    let activeMode = 'risk'; // 'risk', 'temp', 'noise', 'pm25'
+    let activeMode = 'risk'; // 'risk', 'temp', 'noise', 'pm25', 'uv'
 
-    // Threshold state
+    // Risk Thresholds State
     let thresholds = {
-      temp: { safe: 22, danger: 28 },
-      noise: { safe: 55, danger: 70 },
-      pm25: { safe: 15, danger: 35 }
+      temp:  { safe: 22, danger: 30 },
+      noise: { safe: 55, danger: 75 },
+      pm25:  { safe: 12, danger: 35 },
+      uv:    { safe: 3,  danger: 8 }
     };
 
-    // Persona weights
+    // Health Persona Weights
     const weights = {
-      elderly: { temp: 0.6, pm25: 0.2, noise: 0.2 },
-      asthma:  { temp: 0.2, pm25: 0.7, noise: 0.1 },
-      general: { temp: 0.33, pm25: 0.33, noise: 0.34 }
+      elderly: { temp: 0.50, pm25: 0.15, noise: 0.15, uv: 0.20 },
+      asthma:  { temp: 0.20, pm25: 0.60, noise: 0.10, uv: 0.10 },
+      general: { temp: 0.25, pm25: 0.25, noise: 0.25, uv: 0.25 }
     };
 
-
-
+    // Load Daily JSON File
     async function loadDailyData() {
       const date = document.getElementById('date').value;
       try {
-        // UPDATED: Added www/ to match the folder structure
-      const res = await fetch(`./www/data/${date}.json`);
-      currentDailyData = await res.json();
-      renderFrame();
+        const res = await fetch(`./www/data/${date}.json`);
+        currentDailyData = await res.json();
+        updateFrame();
       } catch (e) {
-      console.error("Could not load daily JSON data file:", e);
+        console.error("Could not load daily JSON data file:", e);
       } 
     }
 
-    function setMapLayer(mode) {
+    function setMapLayer(mode, btnElem) {
       activeMode = mode;
       document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
-      event.target.classList.add('active');
+      if(btnElem) btnElem.classList.add('active');
       renderFrame();
     }
 
@@ -244,6 +380,8 @@
       thresholds.noise.danger = parseFloat(document.getElementById('n_danger').value);
       thresholds.pm25.safe   = parseFloat(document.getElementById('p_safe').value);
       thresholds.pm25.danger = parseFloat(document.getElementById('p_danger').value);
+      thresholds.uv.safe     = parseFloat(document.getElementById('u_safe').value);
+      thresholds.uv.danger   = parseFloat(document.getElementById('u_danger').value);
       renderFrame();
     }
 
@@ -251,15 +389,17 @@
       const hour = document.getElementById('hour').value;
       document.getElementById('hourVal').innerText = (hour < 10 ? '0' : '') + hour + ':00';
       renderFrame();
+      renderActiveEventMarkers(hour);
     }
 
-    // Helper: Normalize value between 0.0 (Safe) and 1.0 (Danger)
+    // Risk normalization [0.0 = Safe, 1.0 = Danger]
     function calcRisk(val, safe, danger) {
       if (val <= safe) return 0.0;
       if (val >= danger) return 1.0;
       return (val - safe) / (danger - safe);
     }
 
+    // 2. RENDER ENVIRONMENTAL RISK OVERLAY
     function renderFrame() {
       if (!currentDailyData) return;
 
@@ -275,15 +415,18 @@
         const rTemp  = calcRisk(hourData.temp[i], thresholds.temp.safe, thresholds.temp.danger);
         const rNoise = calcRisk(hourData.noise[i], thresholds.noise.safe, thresholds.noise.danger);
         const rPM25  = calcRisk(hourData.pm25[i], thresholds.pm25.safe, thresholds.pm25.danger);
+        const rUV    = calcRisk(hourData.uv ? hourData.uv[i] : 0, thresholds.uv.safe, thresholds.uv.danger);
 
         if (activeMode === 'risk') {
-          displayValues[i] = (rTemp * w.temp) + (rPM25 * w.pm25) + (rNoise * w.noise);
+          displayValues[i] = (rTemp * w.temp) + (rPM25 * w.pm25) + (rNoise * w.noise) + (rUV * w.uv);
         } else if (activeMode === 'temp') {
           displayValues[i] = rTemp;
         } else if (activeMode === 'noise') {
           displayValues[i] = rNoise;
         } else if (activeMode === 'pm25') {
           displayValues[i] = rPM25;
+        } else if (activeMode === 'uv') {
+          displayValues[i] = rUV;
         }
       }
 
@@ -301,17 +444,14 @@
       const imgData = ctx.createImageData(cols, rows);
 
       for (let i = 0; i < riskArray.length; i++) {
-        const score = riskArray[i]; // 0.0 to 1.0
+        const score = riskArray[i];
         const idx = i * 4;
 
-        // Color Interpolation: Green (0.0) -> Yellow/Orange (0.5) -> Red (1.0)
         let r = 0, g = 0, b = 0;
         if (score < 0.5) {
-          // Green to Yellow
           r = Math.round(255 * (score * 2));
           g = 220;
         } else {
-          // Yellow to Red
           r = 235;
           g = Math.round(220 * (1 - (score - 0.5) * 2));
         }
@@ -326,6 +466,59 @@
       canvasLayer = L.imageOverlay(canvas.toDataURL(), bounds, { opacity: 0.75 }).addTo(map);
     }
 
+    // 3. RENDER ACTIVE DYNAMIC EVENTS (Cooling Centers, Fires, Music Events)
+    function renderActiveEventMarkers(hour) {
+      eventMarkersGroup.clearLayers();
+      if (!currentDailyData) return;
+
+      // Extract events from hour object or daily metadata
+      const hourObj = currentDailyData.hours[hour];
+      const events = hourObj.events || currentDailyData.active_events || [];
+
+      Object.keys(events).forEach(key => {
+        const ev = events[key];
+        if (!ev.coords) return;
+
+        // Determine lat/lng from coordinates
+        let lat, lng;
+        if (Array.isArray(ev.coords) && typeof ev.coords[0] === 'number') {
+          lat = ev.coords[0];
+          lng = ev.coords[1];
+        } else if (Array.isArray(ev.coords) && Array.isArray(ev.coords[0])) {
+          // Polygon centroid fallback
+          lat = ev.coords[0][0];
+          lng = ev.coords[0][1];
+        }
+
+        if (!lat || !lng) return;
+
+        const isMitigation = ev.type === 'mitigation' || ev.effect_type === 'mitigation';
+        const color = isMitigation ? '#007bff' : '#e74c3c';
+        const icon = isMitigation ? '❄️' : '⚠️';
+
+        const marker = L.circleMarker([lat, lng], {
+          radius: 9,
+          fillColor: color,
+          color: '#ffffff',
+          weight: 2,
+          opacity: 1,
+          fillOpacity: 0.9
+        });
+
+        marker.bindPopup(`
+          <div style="font-size:0.85rem; font-family:sans-serif;">
+            <strong>${icon} ${ev.label || ev.id}</strong><br/>
+            <span style="color:#666;">Type: ${isMitigation ? 'Cooling / Mitigation Center' : 'Hazard Event'}</span><br/>
+            <span style="color:#666;">Affected Hazards: ${ev.risks}</span>
+          </div>
+        `);
+
+        marker.bindTooltip(`${icon} ${ev.label}`, { permanent: false, direction: 'top' });
+        eventMarkersGroup.addLayer(marker);
+      });
+    }
+
+    // 4. AUTOMATIC 24-HOUR LOOPING ANIMATION
     function togglePlay() {
       const btn = document.getElementById('playBtn');
       const slider = document.getElementById('hour');
@@ -339,14 +532,14 @@
         btn.innerText = "⏸ Pause";
         playInterval = setInterval(() => {
           let h = parseInt(slider.value) + 1;
-          if (h > 23) h = 0;
+          if (h > 23) h = 0; // Infinite seamless loop
           slider.value = h;
           updateFrame();
-        }, 300);
+        }, 400); // 400ms per hour
       }
     }
 
-    // Initial execution
+    // Initial Execution
     loadDailyData();
   </script>
 </body>
